@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}</style>
+</head>
+<body>
+<title>생각가지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed drawing board (canvas) with floating tool islands at the edges */
+:root{
+  --paper:#EBEFF3; --surface:#FFFFFF; --ink:#1B2230; --muted:#5E6A79; --line:#D2D9E2;
+  --grid:#C3CCD7; --sel:#2F6BFF; --chip:#F2F4F7; --shadow:0 6px 24px rgba(27,34,48,.12), 0 1px 3px rgba(27,34,48,.08);
+  --f-display:"Do Hyeon","IBM Plex Sans KR",system-ui,sans-serif;
+  --f-node:"Gowun Dodum","IBM Plex Sans KR",system-ui,sans-serif;
+  --f-ui:"IBM Plex Sans KR",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#11151C; --surface:#1B212B; --ink:#E8ECF2; --muted:#98A3B3; --line:#2D3543;
+  --grid:#2A3240; --sel:#6E9BFF; --chip:#242B37; --shadow:0 6px 24px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#11151C; --surface:#1B212B; --ink:#E8ECF2; --muted:#98A3B3; --line:#2D3543;
+  --grid:#2A3240; --sel:#6E9BFF; --chip:#242B37; --shadow:0 6px 24px rgba(0,0,0,.45), 0 1px 3px rgba(0,0,0,.3); color-scheme:dark}
+[hidden]{display:none!important}
+html,body{height:100%;overflow:hidden}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-ui);-webkit-font-smoothing:antialiased;touch-action:none;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+#board{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
+#board.dragging{cursor:grabbing}
+button{font:inherit;color:inherit}
+.island{position:fixed;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);display:flex;align-items:center;gap:2px;padding:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;height:36px;min-width:36px;padding:0 10px;border:0;border-radius:10px;background:transparent;cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
+.btn svg{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn:hover:not(:disabled){background:var(--chip)}
+.btn:focus-visible,.tab:focus-visible,.emo:focus-visible,.sw:focus-visible,.seg button:focus-visible,input:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--ink);color:var(--surface);padding:0 14px}
+.btn.primary:hover{background:var(--ink);opacity:.9}
+.btn.danger{color:#D23B2A}
+.sep{width:1px;height:22px;background:var(--line);margin:0 4px}
+
+#top{top:calc(env(safe-area-inset-top,0px) + 12px);left:max(16px, env(safe-area-inset-left, 0px));right:max(16px, env(safe-area-inset-right, 0px));justify-content:space-between;padding:4px 4px 4px 12px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;flex:1}
+.brand .mark{width:26px;height:26px;flex:none}
+#title{font-family:var(--f-display);font-size:20px;border:0;background:transparent;color:var(--ink);min-width:0;width:100%;max-width:340px;padding:4px 6px;border-radius:8px}
+#title:hover{background:var(--chip)}
+.tools{display:flex;align-items:center;gap:2px;flex:none}
+
+#selbar{left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 16px);max-width:calc(100% - 32px);overflow-x:auto;scrollbar-width:none}
+#selbar::-webkit-scrollbar{display:none}
+#hint{font-size:13px;color:var(--muted);padding:0 12px;height:36px;display:flex;align-items:center;white-space:nowrap}
+#hint kbd{font-family:var(--f-ui);font-size:11px;background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin:0 2px}
+
+#zoom{right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+#zoomPct{font-size:12px;width:46px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
+
+.pop{position:fixed;z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px}
+#emojiPop{width:min(344px, calc(100vw - 32px))}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin-bottom:8px}
+.tab{border:0;background:transparent;border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--chip);color:var(--ink);font-weight:600}
+.emogrid{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
+.emo{border:0;background:transparent;font-size:24px;height:46px;border-radius:10px;cursor:pointer;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.emo:hover{background:var(--chip)}
+.emorow{display:flex;gap:8px;margin-top:10px;align-items:center}
+.emorow input{flex:1;min-width:0;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);padding:0 10px;font:inherit;font-size:14px}
+#colorPop .sws{display:grid;grid-template-columns:repeat(5,36px);gap:8px}
+.sw{width:36px;height:36px;border-radius:50%;border:2px solid var(--surface);box-shadow:0 0 0 1px var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink)}
+.sw.none{background:var(--chip);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+.poplabel{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
+#menuPop{width:240px;padding:6px}
+#menuPop .btn{width:100%;justify-content:flex-start}
+#confirmRow{padding:8px 8px 4px;font-size:13px;display:grid;gap:8px}
+#confirmRow div{display:flex;gap:6px}
+
+#sheetWrap{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
+#sheet{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);width:min(520px,100%);max-height:calc(100% - 16px);overflow:auto;padding:20px;display:grid;gap:16px}
+#sheet h2{font-family:var(--f-display);font-weight:400;font-size:24px;margin:0;text-wrap:balance}
+.row{display:grid;gap:6px}
+.row>span{font-size:12px;color:var(--muted);letter-spacing:.02em}
+.seg{display:flex;background:var(--chip);border-radius:12px;padding:3px;gap:3px;flex-wrap:wrap}
+.seg button{flex:1;border:0;background:transparent;border-radius:9px;height:34px;cursor:pointer;font-size:14px;color:var(--muted);min-width:64px}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+#preview{width:100%;height:200px;border-radius:12px;background:var(--paper);display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
+#preview canvas{max-width:100%;max-height:100%;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+#pvInfo{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.check input{width:18px;height:18px;accent-color:var(--ink)}
+.note{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
+.actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+
+#editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 76px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+#printImg{display:none}
+@media (max-width:640px){
+  .lbl{display:none}
+  #title{font-size:18px}
+  #zoom{bottom:calc(env(safe-area-inset-bottom,0px) + 72px);flex-direction:column}
+  #zoomPct{display:none}
+  #hint .kb{display:none}
+}
+@media print{
+  body>*:not(#printImg){display:none!important}
+  #printImg{display:block!important;max-width:100%;max-height:100vh;margin:auto}
+  html,body{overflow:visible;background:#fff}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<canvas id="board" aria-label="마인드맵 캔버스"></canvas>
+
+<header id="top" class="island">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 13 C17 13 18 6 23 6" stroke="#E2553F" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C17 13 18 20 23 20" stroke="#2C7BD6" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 7 3 7" stroke="#16956C" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 19 3 19" stroke="#C77A0A" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="13" r="5" fill="currentColor"/></svg>
+    <input id="title" aria-label="마인드맵 제목" maxlength="60">
+  </div>
+  <div class="tools">
+    <button class="btn" id="undoBtn" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+    <button class="btn" id="redoBtn" title="다시 실행 (Ctrl+Shift+Z)" aria-label="다시 실행"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    <button class="btn" id="layoutBtn" title="가지를 겹치지 않게 정리"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lbl">정리</span></button>
+    <span class="sep"></span>
+    <button class="btn primary" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 19h14"/></svg><span class="lbl">내보내기</span></button>
+    <button class="btn" id="menuBtn" aria-label="메뉴" aria-haspopup="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
+  </div>
+</header>
+
+<div id="selbar" class="island" role="toolbar" aria-label="선택한 가지 도구">
+  <div id="hint">가지를 눌러 선택하세요<span class="kb">&nbsp;· 더블클릭 <kbd>편집</kbd> <kbd>Tab</kbd> 가지 <kbd>Enter</kbd> 형제</span></div>
+  <div id="selTools" style="display:flex;gap:2px" hidden>
+    <button class="btn" id="addChildBtn" title="하위 가지 추가 (Tab)"><svg viewBox="0 0 24 24"><path d="M4 12c6 0 6-6 12-6"/><circle cx="19" cy="6" r="2.4"/><path d="M19 13v6m-3-3h6"/></svg><span class="lbl">가지</span></button>
+    <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Enter)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
+    <span class="sep"></span>
+    <button class="btn" id="editBtn" title="글자 고치기 (F2)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
+    <button class="btn" id="emojiBtn" title="이모지"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0"/><path d="M9 10h.01M15 10h.01" stroke-width="2.6"/></svg><span class="lbl">이모지</span></button>
+    <button class="btn" id="colorBtn" title="가지 색"><svg viewBox="0 0 24 24"><path d="M12 3.5c3.5 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2.5-6 6-10z"/></svg><span class="lbl">색</span></button>
+    <span class="sep"></span>
+    <button class="btn danger" id="delBtn" title="가지 지우기 (Delete)" aria-label="지우기"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3m-7 0 1 13h8l1-13"/></svg></button>
+  </div>
+</div>
+
+<div id="zoom" class="island" aria-label="확대 축소">
+  <button class="btn" id="zoomOut" aria-label="축소"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+  <span id="zoomPct">100%</span>
+  <button class="btn" id="zoomIn" aria-label="확대"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
+  <button class="btn" id="fitBtn" title="전체 보기" aria-label="전체 보기"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
+
+<div id="emojiPop" class="pop" hidden>
+  <div class="tabs" id="emoTabs" role="tablist"></div>
+  <div class="emogrid" id="emoGrid"></div>
+  <div class="emorow">
+    <input id="emoInput" placeholder="직접 입력 (키보드 이모지)" maxlength="8" aria-label="이모지 직접 입력">
+    <button class="btn" id="emoApply">넣기</button>
+    <button class="btn" id="emoClear">빼기</button>
+  </div>
+</div>
+
+<div id="colorPop" class="pop" hidden>
+  <div class="poplabel">가지 색 · 아래 가지에도 함께 적용돼요</div>
+  <div class="sws" id="swatches"></div>
+</div>
+
+<div id="menuPop" class="pop" hidden>
+  <button class="btn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M12 11v6m-3-3h6"/></svg>새 마인드맵</button>
+  <div id="confirmRow" hidden>지금 맵을 지우고 새로 시작할까요? 되돌리기로 복구할 수 있어요.<div><button class="btn primary" id="newYes">새로 시작</button><button class="btn" id="newNo">취소</button></div></div>
+  <button class="btn" id="saveJsonBtn"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>파일로 보관 (.json)</button>
+  <button class="btn" id="openJsonBtn"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>보관 파일 열기</button>
+  <input type="file" id="fileIn" accept=".json,application/json" hidden>
+</div>
+
+<div id="sheetWrap" hidden>
+  <div id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h2 id="sheetTitle">내보내기</h2>
+    <div class="row"><span>형식</span>
+      <div class="seg" id="fmtSeg"><button data-v="png" aria-pressed="true">이미지 (PNG)</button><button data-v="pdf" aria-pressed="false">PDF</button></div>
+    </div>
+    <div class="row" id="paperRow" hidden><span>용지 크기</span>
+      <div class="seg" id="paperSeg"><button data-v="a4" aria-pressed="true">A4</button><button data-v="a3" aria-pressed="false">A3</button><button data-v="fit" aria-pressed="false">맵 크기에 맞춤</button></div>
+    </div>
+    <div class="row" id="bgRow"><span>배경</span>
+      <div class="seg" id="bgSeg"><button data-v="white" aria-pressed="true">흰색</button><button data-v="clear" aria-pressed="false">투명</button></div>
+    </div>
+    <label class="check"><input type="checkbox" id="withTitle" checked> 제목 넣기</label>
+    <div id="preview"></div>
+    <div id="pvInfo"></div>
+    <p class="note" id="printNote">인쇄하려면 PDF로 저장한 뒤 그 파일을 열어 인쇄하세요. A4·A3 용지는 가로·세로 방향을 맵 모양에 맞춰 자동으로 고릅니다.</p>
+    <div class="actions">
+      <button class="btn" id="sheetClose">닫기</button>
+      <button class="btn" id="printBtn" hidden><svg viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H4v-8h16v8h-3"/><path d="M7 14h10v6H7z"/></svg>인쇄</button>
+      <button class="btn primary" id="saveBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 19h14"/></svg>저장</button>
+    </div>
+  </div>
+</div>
+
+<input id="editor" hidden aria-label="가지 글자">
+<div id="toast" role="status" hidden></div>
+<img id="printImg" alt="">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const PALETTE = ['#E2553F','#2C7BD6','#16956C','#8A55D4','#C77A0A','#D2407C','#11869A','#5E7F1E','#4B5563'];
+const EMOJI_FONTS = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"';
+const STORE = 'saenggakgaji.v1';
+const EMOJIS = {
+  '표정':['😀','😄','😍','🤩','😎','🤔','😴','😱','🥳','😭','😡','🤗','😇','🤓','😅','🙌','👍','👏'],
+  '기호':['⭐','❤️','🔥','✅','❌','❓','❗','💡','📌','🎯','🏆','⚠️','🔔','💬','🔒','➕','🆕','💯'],
+  '물건':['📚','✏️','📝','💻','📱','🎮','🎨','🎵','📷','💰','🔑','🧩','📅','⏰','🛠️','📦','🎁','🧸'],
+  '자연':['🌱','🌳','🌸','🌈','☀️','🌙','⛅','🌊','🍀','🐶','🐱','🦊','🐰','🐻','🦁','🐟','🦋','🌍'],
+  '음식':['🍎','🍕','🍔','🍜','🍰','☕','🍙','🍓','🥗','🍩','🍦','🧃','🍚','🥟','🍗','🍉','🥐','🍪'],
+  '활동':['⚽','🏀','🚀','✈️','🚗','🏠','🏫','🏥','🛒','🎉','🗺️','🏃','🚲','🏊','⛺','🎬','🎤','🧘']
+};
+
+/* ---------- state ---------- */
+let state, sel = null, view = {x:0, y:0, k:1};
+const undoStack = [], redoStack = [];
+
+function sample(){
+  const s = {title:'예시 · 새 게임 기획', root:'n0', seq:0, nodes:{}};
+  const add = (id,parent,text,emoji,x,color) => { s.nodes[id] = {id,parent,text,emoji,x,y:0,color:color||null,ord:s.seq++}; };
+  add('n0',null,'새 게임 기획','🎮',0);
+  const br = [
+    ['장르','🧩',1,['레이싱','퍼즐','리듬 액션']],
+    ['캐릭터','🦸',1,['주인공 로봇','라이벌','펫 도우미']],
+    ['스테이지','🗺️',1,['사막','얼음 동굴','하늘 섬']],
+    ['그래픽','🎨',-1,['로우폴리 3D','밝은 색감']],
+    ['조작','🕹️',-1,['키보드','터치 버튼']],
+    ['출시','🚀',-1,['웹 버전 먼저','친구들 테스트']]
+  ];
+  br.forEach(([t,e,side,kids],i) => {
+    const id='b'+i; add(id,'n0',t,e,side*200,PALETTE[i]);
+    kids.forEach((k,j)=> add(id+'_'+j,id,k,'',side*400));
+  });
+  s.nodes['b1_0'].emoji = '🤖'; s.nodes['b5_0'].emoji = '🌐';
+  return s;
+}
+
+function load(){
+  try { const raw = localStorage.getItem(STORE); if (raw){ const s = JSON.parse(raw); if (valid(s)) return {s, fresh:false}; } } catch(e){}
+  return {s: sample(), fresh:true};
+}
+function valid(s){ return s && typeof s === 'object' && s.nodes && s.root && s.nodes[s.root]; }
+function persist(){ try { localStorage.setItem(STORE, JSON.stringify(state)); } catch(e){} }
+
+const N = id => state.nodes[id];
+const kids = id => Object.values(state.nodes).filter(n => n.parent === id).sort((a,b)=>a.ord-b.ord);
+function depth(n){ let d=0; while(n.parent){ n=N(n.parent); d++; } return d; }
+function side(n){
+  if (!n.parent) return 0;
+  const p = N(n.parent); const s = Math.sign(n.x - p.x);
+  return s || (p.parent ? side(p) : 1);
+}
+function colorOf(n){
+  let c = n; while (c){ if (c.color) return c.color; c = c.parent ? N(c.parent) : null; }
+  return PALETTE[0];
+}
+function subtreeIds(id){ const out=[id]; for (let i=0;i<out.length;i++) for (const k of kids(out[i])) out.push(k.id); return out; }
+
+/* ---------- measuring & geometry ---------- */
+const mctx = document.createElement('canvas').getContext('2d');
+function styleFor(d){
+  if (d===0) return {font:`30px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:30, px:26, py:15, kind:'root'};
+  if (d===1) return {font:`21px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:21, px:17, py:10, kind:'pill'};
+  return {font:`17px "Gowun Dodum","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:17, px:6, py:7, kind:'line'};
+}
+const label = n => (n.emoji ? n.emoji + ' ' : '') + (n.text || ' ');
+function geom(n){
+  const d = depth(n), st = styleFor(d);
+  mctx.font = st.font;
+  const w = Math.max(mctx.measureText(label(n)).width + st.px*2, d===0 ? 120 : 40);
+  const h = st.size*1.2 + st.py*2;
+  return {x:n.x, y:n.y, w, h, d, st};
+}
+
+/* ---------- drawing ---------- */
+const cv = $('board'), ctx = cv.getContext('2d');
+let theme = {};
+function readTheme(){
+  const cs = getComputedStyle(document.documentElement);
+  const g = v => cs.getPropertyValue(v).trim();
+  theme = {ink:g('--ink'), rootText:g('--surface'), grid:g('--grid'), sel:g('--sel'), bg:g('--paper')};
+}
+const EXPORT_THEME = {ink:'#1B2230', rootText:'#FFFFFF', grid:null, sel:null};
+
+function taper(c, p0, p3, w0, w1, color){
+  const mx = (p0.x + p3.x)/2, p1 = {x:mx, y:p0.y}, p2 = {x:mx, y:p3.y};
+  const L=[], R=[], S=26;
+  for (let i=0;i<=S;i++){
+    const t=i/S, u=1-t;
+    const x = u*u*u*p0.x + 3*u*u*t*p1.x + 3*u*t*t*p2.x + t*t*t*p3.x;
+    const y = u*u*u*p0.y + 3*u*u*t*p1.y + 3*u*t*t*p2.y + t*t*t*p3.y;
+    const dx = 3*u*u*(p1.x-p0.x) + 6*u*t*(p2.x-p1.x) + 3*t*t*(p3.x-p2.x);
+    const dy = 3*u*u*(p1.y-p0.y) + 6*u*t*(p2.y-p1.y) + 3*t*t*(p3.y-p2.y);
+    const len = Math.hypot(dx,dy) || 1, nx = -dy/len, ny = dx/len, w = (w0 + (w1-w0)*t)/2;
+    L.push([x+nx*w, y+ny*w]); R.push([x-nx*w, y-ny*w]);
+  }
+  c.beginPath(); c.moveTo(L[0][0], L[0][1]);
+  for (const p of L) c.lineTo(p[0],p[1]);
+  for (let i=R.length-1;i>=0;i--) c.lineTo(R[i][0],R[i][1]);
+  c.closePath(); c.fillStyle = color; c.fill();
+  c.beginPath(); c.arc(p3.x, p3.y, w1/2, 0, Math.PI*2); c.fill();
+}
+
+function anchorOut(g, s){
+  if (g.d===0) return {x:g.x + s*(g.w/2 - 16), y:g.y};
+  if (g.d===1) return {x:g.x + s*(g.w/2 - 2), y:g.y};
+  return {x:g.x + s*g.w/2, y:g.y + g.h/2};
+}
+function anchorIn(g, s){
+  if (g.d===1) return {x:g.x - s*(g.w/2 - 2), y:g.y};
+  return {x:g.x - s*g.w/2, y:g.y + g.h/2};
+}
+function rr(c,x,y,w,h,r){ c.beginPath(); c.roundRect ? c.roundRect(x,y,w,h,r) : c.rect(x,y,w,h); }
+
+function drawScene(c, th, opts){
+  const nodes = Object.values(state.nodes);
+  const G = new Map(nodes.map(n => [n.id, geom(n)]));
+  // edges
+  for (const n of nodes){
+    if (!n.parent) continue;
+    const p = N(n.parent), gp = G.get(p.id), gn = G.get(n.id), s = side(n);
+    const w0 = gp.d===0 ? 10 : gp.d===1 ? 4.5 : 2.6, w1 = gp.d===0 ? 4.5 : 2.6;
+    taper(c, anchorOut(gp, s), anchorIn(gn, s), w0, w1, colorOf(n));
+  }
+  // nodes
+  for (const n of nodes){
+    const g = G.get(n.id), st = g.st;
+    c.font = st.font; c.textAlign = 'center'; c.textBaseline = 'middle';
+    if (st.kind==='root'){
+      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = th.ink; c.fill();
+      c.fillStyle = th.rootText; c.fillText(label(n), g.x, g.y+1);
+    } else if (st.kind==='pill'){
+      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = colorOf(n); c.fill();
+      c.fillStyle = '#FFFFFF'; c.fillText(label(n), g.x, g.y+1);
+    } else {
+      c.fillStyle = th.ink; c.fillText(label(n), g.x, g.y);
+      c.beginPath(); c.moveTo(g.x-g.w/2, g.y+g.h/2); c.lineTo(g.x+g.w/2, g.y+g.h/2);
+      c.strokeStyle = colorOf(n); c.lineWidth = 2.6; c.lineCap = 'round'; c.stroke();
+    }
+    if (opts.selection){
+      const ring = (dash) => {
+        rr(c, g.x-g.w/2-6, g.y-g.h/2-6, g.w+12, g.h+12, st.kind==='line' ? 10 : (g.h+12)/2);
+        c.setLineDash(dash ? [6/view.k, 4/view.k] : []); c.lineWidth = 2/view.k; c.strokeStyle = th.sel; c.stroke(); c.setLineDash([]);
+      };
+      if (n.id === sel && !editing) ring(false);
+      if (n.id === dropTarget) ring(true);
+    }
+  }
+  return G;
+}
+
+function draw(){
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W*dpr) || cv.height !== Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
+  // dot grid
+  const step = 28*view.k;
+  if (step >= 9){
+    ctx.fillStyle = theme.grid; const r = Math.max(1, 1.1*dpr);
+    const ox = ((view.x % step)+step)%step, oy = ((view.y % step)+step)%step;
+    for (let x=ox; x<W; x+=step) for (let y=oy; y<H; y+=step){ ctx.fillRect(x*dpr - r/2, y*dpr - r/2, r, r); }
+  }
+  ctx.setTransform(dpr*view.k,0,0,dpr*view.k,dpr*view.x,dpr*view.y);
+  drawScene(ctx, theme, {selection:true});
+  $('zoomPct').textContent = Math.round(view.k*100) + '%';
+}
+let raf = 0; const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); };
+
+/* ---------- history ---------- */
+function snapshot(){ return JSON.stringify(state); }
+function mutate(fn){
+  const before = snapshot(); fn();
+  if (snapshot() === before) { redraw(); return; }
+  undoStack.push(before); if (undoStack.length > 120) undoStack.shift(); redoStack.length = 0;
+  afterChange();
+}
+function afterChange(){ persist(); syncUI(); redraw(); }
+function undo(){ if (!undoStack.length) return; redoStack.push(snapshot()); state = JSON.parse(undoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
+function redo(){ if (!redoStack.length) return; undoStack.push(snapshot()); state = JSON.parse(redoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
+
+/* ---------- edits ---------- */
+function newId(){ let id; do { id = 'n' + (++state.seq) + Math.random().toString(36).slice(2,5); } while (state.nodes[id]); return id; }
+function nextL1Color(){ return PALETTE[kids(state.root).length % 8]; }
+
+function addChild(pid){
+  if (!pid) return;
+  let id;
+  mutate(() => {
+    const p = N(pid), d = depth(p);
+    let s;
+    if (d===0){ const ks = kids(pid); const r = ks.filter(k=>side(k)===1).length, l = ks.length - r; s = r <= l ? 1 : -1; }
+    else s = side(p) || 1;
+    id = newId();
+    const n = {id, parent:pid, text:'새 가지', emoji:'', x:0, y:0, color: d===0 ? nextL1Color() : null, ord: state.seq};
+    state.nodes[id] = n;
+    const gp = geom(p), g = geom(n);
+    n.x = p.x + s*(gp.w/2 + (d===0 ? 80 : 44) + g.w/2);
+    const sib = kids(pid).filter(k => k.id!==id && side(k)===s);
+    if (sib.length){
+      const low = Math.max(...sib.flatMap(k => subtreeIds(k.id).map(i => N(i).y)));
+      n.y = low + Math.max(g.h + 16, 48);
+    } else n.y = p.y;
+    sel = id;
+  });
+  ensureVisible(id); startEdit(id, true);
+}
+function addSibling(id){
+  const n = N(id); if (!n) return;
+  if (!n.parent) return addChild(id);
+  let nid;
+  mutate(() => {
+    const s = side(n), g = geom(n), gap = Math.max(g.h + 16, 48);
+    for (const k of kids(n.parent)) if (k.id!==id && side(k)===s && k.y > n.y) moveSubtree(k.id, 0, gap);
+    nid = newId();
+    const m = {id:nid, parent:n.parent, text:'새 가지', emoji:'', x:n.x, y:n.y + gap, color: depth(n)===1 ? nextL1Color() : null, ord: state.seq};
+    state.nodes[nid] = m;
+    const gm = geom(m); m.x = n.x - s*(g.w/2) + s*(gm.w/2);
+    sel = nid;
+  });
+  ensureVisible(nid); startEdit(nid, true);
+}
+function moveSubtree(id, dx, dy){ for (const i of subtreeIds(id)){ const m = N(i); m.x += dx; m.y += dy; } }
+function removeNode(id){
+  const n = N(id); if (!n) return;
+  if (!n.parent){ toast('가운데 주제는 지울 수 없어요. 글자를 바꿔 보세요.'); return; }
+  mutate(() => { for (const i of subtreeIds(id)) delete state.nodes[i]; sel = n.parent; });
+}
+
+/* ---------- auto layout ---------- */
+let anim = null;
+function layout(){
+  const root = N(state.root), T = {}; T[root.id] = {x:root.x, y:root.y};
+  const memo = new Map();
+  const subH = n => {
+    if (memo.has(n.id)) return memo.get(n.id);
+    const own = geom(n).h + 16, ks = kids(n.id);
+    const v = Math.max(own, ks.reduce((a,c)=>a+subH(c), 0)); memo.set(n.id, v); return v;
+  };
+  const place = (list, parent, s) => {
+    const pt = T[parent.id], gp = geom(parent), pd = gp.d;
+    const total = list.reduce((a,c)=>a+subH(c),0) + (pd===0 ? (list.length-1)*14 : 0);
+    let y = pt.y - total/2;
+    for (const c of list){
+      const h = subH(c), gc = geom(c);
+      T[c.id] = {x: pt.x + s*(gp.w/2 + (pd===0 ? 80 : 44) + gc.w/2), y: y + h/2};
+      y += h + (pd===0 ? 14 : 0);
+      place(kids(c.id).sort((a,b)=>a.y-b.y), c, s);
+    }
+  };
+  const l1 = kids(root.id);
+  for (const s of [1,-1]) place(l1.filter(c => side(c)===s).sort((a,b)=>a.y-b.y), root, s);
+  return T;
+}
+function runLayout(animate){
+  const before = snapshot(), T = layout();
+  const from = {}; for (const id in T) from[id] = {x:N(id).x, y:N(id).y};
+  const finish = () => { for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; } if (snapshot()!==before){ undoStack.push(before); redoStack.length=0; } afterChange(); };
+  if (!animate || matchMedia('(prefers-reduced-motion: reduce)').matches){ finish(); return; }
+  const t0 = performance.now(); cancelAnimationFrame(anim);
+  const step = now => {
+    const t = Math.min(1, (now - t0)/360), e = 1 - Math.pow(1-t, 3);
+    for (const id in T){ const n = N(id); if (!n) continue; n.x = from[id].x + (T[id].x - from[id].x)*e; n.y = from[id].y + (T[id].y - from[id].y)*e; }
+    draw();
+    if (t < 1) anim = requestAnimationFrame(step); else finish();
+  };
+  anim = requestAnimationFrame(step);
+}
+
+/* ---------- view ---------- */
+function bounds(pad=0){
+  let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+  for (const n of Object.values(state.nodes)){ const g = geom(n); x0=Math.min(x0,g.x-g.w/2); x1=Math.max(x1,g.x+g.w/2); y0=Math.min(y0,g.y-g.h/2); y1=Math.max(y1,g.y+g.h/2+3); }
+  return {x0:x0-pad, y0:y0-pad, x1:x1+pad, y1:y1+pad, w:x1-x0+pad*2, h:y1-y0+pad*2};
+}
+function fit(){
+  const b = bounds(40), W = cv.clientWidth, H = cv.clientHeight;
+  const top = 76, bottom = 76, availH = Math.max(100, H - top - bottom);
+  const k = Math.min(W / b.w, availH / b.h, 1.4);
+  view.k = Math.max(0.15, k);
+  view.x = W/2 - (b.x0 + b.w/2)*view.k;
+  view.y = top + availH/2 - (b.y0 + b.h/2)*view.k;
+  redraw();
+}
+function zoomAt(f, sx, sy){
+  const k = Math.min(3, Math.max(0.15, view.k*f)); const r = k / view.k;
+  view.x = sx - (sx - view.x)*r; view.y = sy - (sy - view.y)*r; view.k = k; redraw();
+}
+function ensureVisible(id){
+  const g = geom(N(id)), W = cv.clientWidth, H = cv.clientHeight;
+  const sx = g.x*view.k + view.x, sy = g.y*view.k + view.y, m = 90;
+  if (sx < m) view.x += m - sx + g.w*view.k/2; if (sx > W-m) view.x -= sx - (W-m) + g.w*view.k/2;
+  if (sy < m) view.y += m - sy; if (sy > H-m-40) view.y -= sy - (H-m-40);
+  redraw();
+}
+const toWorld = (sx,sy) => ({x:(sx-view.x)/view.k, y:(sy-view.y)/view.k});
+function hit(wx, wy, exclude){
+  const list = Object.values(state.nodes);
+  for (let i=list.length-1;i>=0;i--){
+    const n = list[i]; if (exclude && exclude.has(n.id)) continue;
+    const g = geom(n), pad = 6;
+    if (Math.abs(wx-g.x) <= g.w/2+pad && Math.abs(wy-g.y) <= g.h/2+pad) return n.id;
+  }
+  return null;
+}
+
+/* ---------- pointer ---------- */
+const pts = new Map(); let drag = null, pinch = null, dropTarget = null, lastTap = {id:null, t:0};
+cv.addEventListener('pointerdown', e => {
+  closePops(); if (editing) commitEdit();
+  cv.setPointerCapture(e.pointerId); pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (pts.size === 2){
+    const [a,b] = [...pts.values()];
+    pinch = {d: Math.hypot(a.x-b.x, a.y-b.y), k: view.k, cx:(a.x+b.x)/2, cy:(a.y+b.y)/2, vx:view.x, vy:view.y};
+    if (drag && drag.type==='node' && drag.moved) restoreDrag();
+    drag = null; return;
+  }
+  const w = toWorld(e.clientX, e.clientY), id = hit(w.x, w.y);
+  if (id){
+    sel = id; syncUI();
+    const ids = subtreeIds(id);
+    drag = {type:'node', id, sx:e.clientX, sy:e.clientY, moved:false, before:snapshot(), orig: ids.map(i => [i, N(i).x, N(i).y]), excl:new Set(ids)};
+  } else {
+    drag = {type:'pan', sx:e.clientX, sy:e.clientY, vx:view.x, vy:view.y, moved:false};
+  }
+  redraw();
+});
+cv.addEventListener('pointermove', e => {
+  if (!pts.has(e.pointerId)) return;
+  pts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (pinch && pts.size >= 2){
+    const [a,b] = [...pts.values()];
+    const d = Math.hypot(a.x-b.x, a.y-b.y), k = Math.min(3, Math.max(0.15, pinch.k * d / pinch.d));
+    const cx = (a.x+b.x)/2, cy = (a.y+b.y)/2, r = k / pinch.k;
+    view.k = k; view.x = cx - (pinch.cx - pinch.vx)*r; view.y = cy - (pinch.cy - pinch.vy)*r; redraw(); return;
+  }
+  if (!drag) return;
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.moved && Math.hypot(dx,dy) < 4) return;
+  drag.moved = true; cv.classList.add('dragging');
+  if (drag.type === 'pan'){ view.x = drag.vx + dx; view.y = drag.vy + dy; }
+  else {
+    for (const [i,x,y] of drag.orig){ N(i).x = x + dx/view.k; N(i).y = y + dy/view.k; }
+    const w = toWorld(e.clientX, e.clientY);
+    const t = N(drag.id).parent ? hit(w.x, w.y, drag.excl) : null;
+    dropTarget = (t && t !== N(drag.id).parent) ? t : null;
+  }
+  redraw();
+});
+function restoreDrag(){ for (const [i,x,y] of drag.orig){ N(i).x = x; N(i).y = y; } dropTarget = null; }
+function endPointer(e){
+  pts.delete(e.pointerId);
+  if (pinch){ if (pts.size < 2) pinch = null; return; }
+  cv.classList.remove('dragging');
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (d.type === 'node'){
+    if (d.moved){
+      if (dropTarget){
+        const n = N(d.id), t = dropTarget; dropTarget = null;
+        n.parent = t;
+        if (depth(n) === 1 && !n.color) n.color = nextL1Color();
+        toast(`'${N(t).text}' 아래로 옮겼어요`);
+      }
+      undoStack.push(d.before); redoStack.length = 0; afterChange();
+    } else {
+      const now = performance.now();
+      if (lastTap.id === d.id && now - lastTap.t < 380){ startEdit(d.id, false); lastTap = {id:null,t:0}; }
+      else lastTap = {id:d.id, t:now};
+    }
+  } else if (!d.moved){ sel = null; syncUI(); redraw(); }
+}
+cv.addEventListener('pointerup', endPointer);
+cv.addEventListener('pointercancel', e => { if (drag && drag.type==='node' && drag.moved) restoreDrag(); drag = null; endPointer(e); });
+cv.addEventListener('wheel', e => {
+  e.preventDefault();
+  if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY*0.01), e.clientX, e.clientY);
+  else { view.x -= e.deltaX; view.y -= e.deltaY; redraw(); }
+}, {passive:false});
+
+/* ---------- text editing ---------- */
+const ed = $('editor'); let editing = null;
+function startEdit(id, isNew){
+  const n = N(id); if (!n) return;
+  editing = {id, isNew}; sel = id;
+  const g = geom(n), k = view.k;
+  ed.value = n.text; ed.hidden = false;
+  ed.style.font = g.st.font.replace(/^(\d+)px/, (m, p) => (p*k) + 'px');
+  const w = Math.max(g.w*k + 40, 160), h = g.h*k + 8;
+  ed.style.width = w + 'px'; ed.style.height = h + 'px';
+  ed.style.left = (g.x*k + view.x - w/2) + 'px'; ed.style.top = (g.y*k + view.y - h/2) + 'px';
+  ed.focus(); ed.select(); redraw();
+}
+function commitEdit(cancel){
+  if (!editing) return;
+  const {id} = editing; editing = null; ed.hidden = true;
+  const v = ed.value.trim();
+  if (!cancel && N(id) && v !== N(id).text){
+    mutate(() => { N(id).text = v || '새 가지'; });
+  } else redraw();
+  syncUI();
+}
+ed.addEventListener('keydown', e => {
+  if (e.isComposing || e.keyCode === 229) return;
+  if (e.key === 'Enter'){ e.preventDefault(); const id = editing && editing.id; commitEdit(); }
+  else if (e.key === 'Escape'){ e.preventDefault(); commitEdit(true); }
+  else if (e.key === 'Tab'){ e.preventDefault(); const id = editing.id; commitEdit(); addChild(id); }
+});
+ed.addEventListener('blur', () => commitEdit());
+
+/* ---------- keyboard ---------- */
+window.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  if (tag === 'input' || tag === 'textarea') return;
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+  if (mod && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); return; }
+  if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
+  if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
+  if (!sel) return;
+  if (e.key === 'Tab'){ e.preventDefault(); addChild(sel); }
+  else if (e.key === 'Enter'){ e.preventDefault(); addSibling(sel); }
+  else if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); removeNode(sel); }
+  else if (e.key === 'F2' || e.key === ' '){ e.preventDefault(); startEdit(sel, false); }
+});
+
+/* ---------- UI wiring ---------- */
+function syncUI(){
+  $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length;
+  $('hint').hidden = !!sel; $('selTools').hidden = !sel;
+  if (sel) $('delBtn').disabled = !N(sel) || !N(sel).parent;
+  if (document.activeElement !== $('title')) $('title').value = state.title || '';
+}
+$('title').addEventListener('change', () => { const v = $('title').value.trim() || '제목 없는 마인드맵'; mutate(() => { state.title = v; }); });
+$('title').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) $('title').blur(); });
+$('undoBtn').onclick = undo; $('redoBtn').onclick = redo;
+$('layoutBtn').onclick = () => { runLayout(true); };
+$('addChildBtn').onclick = () => addChild(sel);
+$('addSibBtn').onclick = () => addSibling(sel);
+$('editBtn').onclick = () => startEdit(sel, false);
+$('delBtn').onclick = () => removeNode(sel);
+$('zoomIn').onclick = () => zoomAt(1.2, cv.clientWidth/2, cv.clientHeight/2);
+$('zoomOut').onclick = () => zoomAt(1/1.2, cv.clientWidth/2, cv.clientHeight/2);
+$('fitBtn').onclick = fit;
+
+function closePops(){ for (const id of ['emojiPop','colorPop','menuPop']) $(id).hidden = true; $('confirmRow').hidden = true; }
+function openPop(pop, anchor, alignRight){
+  const was = !$(pop).hidden; closePops(); if (was) return;
+  const p = $(pop); p.hidden = false;
+  const r = anchor.getBoundingClientRect(), pw = p.offsetWidth, ph = p.offsetHeight, W = innerWidth;
+  let left = alignRight ? r.right - pw : r.left + r.width/2 - pw/2;
+  left = Math.max(16, Math.min(W - 16 - pw, left));
+  let top = r.top - ph - 10; if (top < 16) top = r.bottom + 10;
+  p.style.left = left + 'px'; p.style.top = top + 'px';
+}
+document.addEventListener('pointerdown', e => {
+  if (e.target.closest('.pop') || e.target.closest('#emojiBtn,#colorBtn,#menuBtn') || e.target === cv) return;
+  closePops();
+});
+
+// emoji
+let emoCat = Object.keys(EMOJIS)[0];
+function renderEmoji(){
+  $('emoTabs').innerHTML = '';
+  for (const c of Object.keys(EMOJIS)){
+    const b = document.createElement('button'); b.className = 'tab'; b.textContent = c; b.setAttribute('role','tab');
+    b.setAttribute('aria-selected', c === emoCat); b.onclick = () => { emoCat = c; renderEmoji(); };
+    $('emoTabs').appendChild(b);
+  }
+  $('emoGrid').innerHTML = '';
+  for (const em of EMOJIS[emoCat]){
+    const b = document.createElement('button'); b.className = 'emo'; b.textContent = em; b.setAttribute('aria-label', em);
+    b.onclick = () => setEmoji(em); $('emoGrid').appendChild(b);
+  }
+}
+function setEmoji(em){ if (!sel) return; mutate(() => { N(sel).emoji = em; }); closePops(); }
+$('emojiBtn').onclick = e => { renderEmoji(); $('emoInput').value = ''; openPop('emojiPop', e.currentTarget); };
+$('emoApply').onclick = () => { const v = $('emoInput').value.trim(); if (v) setEmoji([...v].slice(0,4).join('')); };
+$('emoInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) $('emoApply').click(); });
+$('emoClear').onclick = () => setEmoji('');
+
+// color
+function renderSwatches(){
+  const box = $('swatches'); box.innerHTML = '';
+  const cur = sel ? N(sel).color : null;
+  const none = document.createElement('button'); none.className = 'sw none'; none.textContent = '기본';
+  none.setAttribute('aria-pressed', !cur); none.setAttribute('aria-label','위 가지 색 따르기');
+  none.onclick = () => { if (!sel) return; const n = N(sel); if (depth(n) <= 1){ toast('첫 단계 가지는 고유한 색이 있어야 해요'); return; } mutate(() => { n.color = null; }); closePops(); };
+  box.appendChild(none);
+  for (const c of PALETTE){
+    const b = document.createElement('button'); b.className = 'sw'; b.style.background = c;
+    b.setAttribute('aria-pressed', cur === c); b.setAttribute('aria-label','색 ' + c);
+    b.onclick = () => { if (!sel) return; mutate(() => { N(sel).color = c; }); closePops(); };
+    box.appendChild(b);
+  }
+}
+$('colorBtn').onclick = e => { renderSwatches(); openPop('colorPop', e.currentTarget); };
+
+// menu
+$('menuBtn').onclick = e => openPop('menuPop', e.currentTarget, true);
+$('newBtn').onclick = () => { $('confirmRow').hidden = false; };
+$('newNo').onclick = () => { $('confirmRow').hidden = true; };
+$('newYes').onclick = () => {
+  mutate(() => { state = {title:'새 마인드맵', root:'n0', seq:1, nodes:{n0:{id:'n0',parent:null,text:'가운데 주제',emoji:'💡',x:0,y:0,color:null,ord:0}}}; sel = 'n0'; });
+  closePops(); fit(); startEdit('n0', true);
+};
+$('saveJsonBtn').onclick = async () => { closePops(); await saveFile(fileBase() + '.json', new Blob([JSON.stringify(state, null, 1)], {type:'application/json'})); };
+$('openJsonBtn').onclick = () => { closePops(); $('fileIn').click(); };
+$('fileIn').onchange = () => {
+  const f = $('fileIn').files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try { const s = JSON.parse(r.result); if (!valid(s)) throw 0; mutate(() => { state = s; sel = null; }); fit(); toast('보관 파일을 열었어요'); }
+    catch(err){ toast('생각가지에서 보관한 .json 파일만 열 수 있어요'); }
+    $('fileIn').value = '';
+  };
+  r.readAsText(f);
+};
+
+/* ---------- export ---------- */
+const exp = {fmt:'png', paper:'a4', bg:'white'};
+function bindSeg(id, key){
+  $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
+    exp[key] = b.dataset.v; $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); refreshSheet();
+  });
+}
+bindSeg('fmtSeg','fmt'); bindSeg('paperSeg','paper'); bindSeg('bgSeg','bg');
+$('withTitle').onchange = refreshSheet;
+
+function renderExport(scale, opts){
+  const b = bounds(56), titleH = opts.title ? 84 : 0;
+  const W = Math.ceil(b.w*scale), H = Math.ceil((b.h + titleH)*scale);
+  const c = document.createElement('canvas'); c.width = W; c.height = H;
+  const x = c.getContext('2d');
+  if (opts.bg){ x.fillStyle = '#FFFFFF'; x.fillRect(0,0,W,H); }
+  if (opts.title){
+    x.setTransform(scale,0,0,scale,0,0);
+    x.font = `30px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`; x.fillStyle = '#1B2230';
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(state.title || '마인드맵', 56, 62);
+    x.fillStyle = '#C9D1DB'; x.fillRect(56, 76, b.w - 112, 1.5);
+  }
+  x.setTransform(scale,0,0,scale,-b.x0*scale, (titleH - b.y0)*scale);
+  const saveSel = sel; sel = null; drawScene(x, EXPORT_THEME, {selection:false}); sel = saveSel;
+  return c;
+}
+function exportScale(){
+  const b = bounds(56), long = Math.max(b.w, b.h + 84);
+  if (exp.fmt === 'png') return Math.min(3, Math.max(1, 6000/long) , 2.5);
+  const target = exp.paper === 'a3' ? 4200 : exp.paper === 'a4' ? 3300 : 3000;
+  return Math.min(4, Math.max(1.2, target/long));
+}
+function refreshSheet(){
+  $('paperRow').hidden = exp.fmt !== 'pdf';
+  $('bgRow').hidden = exp.fmt !== 'png';
+  const pv = renderExport(0.6, {title:$('withTitle').checked, bg: exp.fmt === 'pdf' || exp.bg === 'white'});
+  const box = $('preview'); box.innerHTML = '';
+  if (exp.bg === 'clear' && exp.fmt === 'png') box.style.background = 'repeating-conic-gradient(var(--chip) 0 25%, var(--paper) 0 50%) 0 0/16px 16px'; else box.style.background = '';
+  box.appendChild(pv);
+  const s = exportScale(), b = bounds(56);
+  const info = exp.fmt === 'png'
+    ? `${Math.ceil(b.w*s)} × ${Math.ceil((b.h + ($('withTitle').checked?84:0))*s)} px`
+    : (exp.paper === 'fit' ? '맵 크기에 맞춘 한 쪽' : `${exp.paper.toUpperCase()} 한 쪽 · 방향 자동`);
+  $('pvInfo').textContent = info + ' · 가지 ' + (Object.keys(state.nodes).length) + '개';
+}
+function openSheet(){ closePops(); if (editing) commitEdit(); $('sheetWrap').hidden = false; refreshSheet(); $('saveBtn').focus(); }
+function closeSheet(){ $('sheetWrap').hidden = true; }
+$('exportBtn').onclick = openSheet;
+$('sheetClose').onclick = closeSheet;
+$('sheetWrap').addEventListener('pointerdown', e => { if (e.target === $('sheetWrap')) closeSheet(); });
+
+function fileBase(){ return (state.title || '마인드맵').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60) || '마인드맵'; }
+const canvasBlob = c => new Promise(res => c.toBlob(res, 'image/png'));
+function buildPdf(){
+  const s = exportScale(), c = renderExport(s, {title:$('withTitle').checked, bg:true});
+  const { jsPDF } = window.jspdf;
+  const land = c.width >= c.height, m = 12;
+  let pdf;
+  if (exp.paper === 'fit'){
+    const mmPerPx = 25.4/96/s*1.0;
+    const pw = c.width*mmPerPx + m*2, ph = c.height*mmPerPx + m*2;
+    pdf = new jsPDF({orientation: pw >= ph ? 'landscape' : 'portrait', unit:'mm', format:[pw, ph]});
+  } else pdf = new jsPDF({orientation: land ? 'landscape' : 'portrait', unit:'mm', format: exp.paper});
+  const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+  const r = Math.min((pw - m*2)/c.width, (ph - m*2)/c.height), w = c.width*r, h = c.height*r;
+  pdf.addImage(c.toDataURL('image/png'), 'PNG', (pw-w)/2, (ph-h)/2, w, h, undefined, 'FAST');
+  pdf.setProperties({title: state.title || '마인드맵'});
+  return pdf.output('blob');
+}
+$('saveBtn').onclick = async () => {
+  const btn = $('saveBtn'); btn.disabled = true;
+  try {
+    if (exp.fmt === 'png'){
+      const c = renderExport(exportScale(), {title:$('withTitle').checked, bg: exp.bg === 'white'});
+      await saveFile(fileBase() + '.png', await canvasBlob(c));
+    } else {
+      if (!window.jspdf){ toast('PDF 도구를 불러오지 못했어요. 인터넷 연결을 확인한 뒤 다시 열어 주세요.'); return; }
+      await saveFile(fileBase() + '.pdf', buildPdf());
+    }
+  } finally { btn.disabled = false; }
+};
+$('printBtn').onclick = () => {
+  const c = renderExport(exportScale(), {title:$('withTitle').checked, bg:true});
+  $('printImg').src = c.toDataURL('image/png');
+  setTimeout(() => window.print(), 60);
+};
+
+let downloadsNS;
+async function saveFile(name, blob){
+  if (window.claude && typeof window.claude.use === 'function'){
+    if (downloadsNS === undefined) downloadsNS = await window.claude.use('downloads');
+    if (!downloadsNS){ toast('이 화면에서는 파일 저장을 쓸 수 없어요'); return; }
+    try { await downloadsNS.save({filename:name, data:blob}); toast('저장했어요: ' + name); }
+    catch(err){
+      const code = err && err.code;
+      if (code === 'declined') return;
+      if (code === 'rate_limited') toast('저장 창이 이미 열려 있어요. 잠시 뒤 다시 눌러 주세요.');
+      else toast('저장하지 못했어요. 잠시 뒤 다시 시도해 주세요.');
+    }
+    return;
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast('저장했어요: ' + name);
+}
+
+let toastT;
+function toast(msg){ const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
+
+/* ---------- boot ---------- */
+const loaded = load(); state = loaded.s;
+readTheme();
+if (!window.claude) $('printBtn').hidden = false;
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readTheme(); redraw(); });
+new MutationObserver(() => { readTheme(); redraw(); }).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme','class','style']});
+new ResizeObserver(() => redraw()).observe(cv);
+syncUI();
+if (loaded.fresh){
+  const T = layout(); for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; }
+  setTimeout(() => toast('예시 맵이에요. 오른쪽 위 메뉴에서 새로 시작할 수 있어요.'), 400);
+}
+fit();
+const refont = () => { if (loaded.fresh && !undoStack.length){ const T = layout(); for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; } fit(); } redraw(); };
+if (document.fonts){ document.fonts.ready.then(refont); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', redraw); }
+})();
+</script>
+</body>
+</html>
