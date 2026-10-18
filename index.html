@@ -162,9 +162,9 @@ button{font:inherit;color:inherit}
   <div id="hint">가지를 누르거나 방향키로 선택하세요<span class="kb">&nbsp;· <kbd>?</kbd> 단축키</span></div>
   <div id="selTools" style="display:flex;gap:2px" hidden>
     <button class="btn" id="addChildBtn" title="하위 가지 추가 (Tab)"><svg viewBox="0 0 24 24"><path d="M4 12c6 0 6-6 12-6"/><circle cx="19" cy="6" r="2.4"/><path d="M19 13v6m-3-3h6"/></svg><span class="lbl">가지</span></button>
-    <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Space)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
+    <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Enter)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
     <span class="sep"></span>
-    <button class="btn" id="editBtn" title="글자 고치기 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
+    <button class="btn" id="editBtn" title="글자 고치기 (F2)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
     <button class="btn" id="emojiBtn" title="이모지"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0"/><path d="M9 10h.01M15 10h.01" stroke-width="2.6"/></svg><span class="lbl">이모지</span></button>
     <button class="btn" id="foldBtn" title="하위 가지 접기 (-) · 펼치기 (+)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12h7"/><path id="foldPlus" d="M12 8.5v7"/></svg><span class="lbl" id="foldLbl">접기</span></button>
     <button class="btn" id="colorBtn" title="가지 색"><svg viewBox="0 0 24 24"><path d="M12 3.5c3.5 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2.5-6 6-10z"/></svg><span class="lbl">색</span></button>
@@ -216,9 +216,10 @@ button{font:inherit;color:inherit}
     <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>부모 · 자식 가지로 이동</dd>
     <dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>위 · 아래 가지로 이동</dd>
     <dt><kbd>Alt</kbd>+<kbd>↑</kbd><kbd>↓</kbd></dt><dd>같은 단계 안에서 순서 바꾸기</dd>
-    <dt><kbd>Enter</kbd></dt><dd>글자 편집 (다시 Enter로 완료)</dd>
     <dt><kbd>Tab</kbd></dt><dd>하위 가지 추가</dd>
-    <dt><kbd>Space</kbd></dt><dd>같은 단계 가지 추가</dd>
+    <dt><kbd>Enter</kbd></dt><dd>같은 단계 가지 추가</dd>
+    <dt><kbd>F2</kbd> <kbd>Space</kbd></dt><dd>글자 고치기 (Enter로 완료)</dd>
+    <dt>바로 타자</dt><dd>선택한 가지 글자를 새로 쓰기</dd>
     <dt><kbd>Delete</kbd></dt><dd>가지 지우기</dd>
     <dt><kbd>-</kbd> <kbd>+</kbd></dt><dd>하위 가지 접기 · 펼치기</dd>
     <dt><kbd>.</kbd></dt><dd>접기 · 펼치기 전환</dd>
@@ -726,16 +727,16 @@ cv.addEventListener('wheel', e => {
 
 /* ---------- text editing ---------- */
 const ed = $('editor'); let editing = null;
-function startEdit(id, isNew){
+function startEdit(id, isNew, replace){
   const n = N(id); if (!n) return;
   editing = {id, isNew}; sel = id;
   const g = geom(n), k = view.k;
-  ed.value = n.text; ed.hidden = false;
+  ed.value = replace ? '' : n.text; ed.hidden = false;
   ed.style.font = g.st.font.replace(/(\d+(?:\.\d+)?)px/, (m, p) => (p*k) + 'px');
   const w = Math.max(g.w*k + 40, 160), h = g.h*k + 8;
   ed.style.width = w + 'px'; ed.style.height = h + 'px';
   ed.style.left = (g.x*k + view.x - w/2) + 'px'; ed.style.top = (g.y*k + view.y - h/2) + 'px';
-  ed.focus(); ed.select(); redraw();
+  ed.focus(); if (!replace) ed.select(); redraw();
 }
 function commitEdit(cancel){
   if (!editing) return;
@@ -773,12 +774,17 @@ window.addEventListener('keydown', e => {
   }
   if (!sel) return;
   if (e.key === 'Tab' || e.key === 'Insert'){ e.preventDefault(); addChild(sel); }
-  else if (e.key === ' '){ e.preventDefault(); addSibling(sel); }
+  else if (e.key === 'Enter'){ e.preventDefault(); addSibling(sel); }
   else if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); removeNode(sel); }
-  else if (e.key === 'Enter' || e.key === 'F2'){ e.preventDefault(); startEdit(sel, false); }
+  else if (e.key === 'F2' || e.key === ' '){ e.preventDefault(); startEdit(sel, false); }
+  else if (mod || e.altKey) return;
   else if (e.key === '-' || e.key === '_'){ e.preventDefault(); toggleCollapse(sel, true); }
   else if (e.key === '=' || e.key === '+'){ e.preventDefault(); toggleCollapse(sel, false); }
   else if (e.key === '.'){ e.preventDefault(); toggleCollapse(sel); }
+  else if (e.key.length === 1 || e.key === 'Process' || e.keyCode === 229){
+    // typing on a selected branch replaces its text, like other mind-map apps
+    startEdit(sel, false, true);
+  }
 });
 
 /* ---------- keyboard navigation & folding ---------- */
