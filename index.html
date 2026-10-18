@@ -209,10 +209,33 @@ button{font:inherit;color:inherit}
 .mapopen .thumb img{max-width:100%;max-height:100%;object-fit:contain}
 .mapacts{display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-height:36px}
 .mapacts .btn{height:30px;font-size:13px;padding:0 8px}
-#histPop{width:min(380px, calc(100vw - 32px));max-height:min(520px, calc(100vh - 120px));overflow:auto}
-.histlist{display:grid;gap:4px}
-.histrow{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 4px;border-bottom:1px solid var(--line);font-size:13px}
-.histrow:last-child{border-bottom:0}
+#histWrap{position:fixed;inset:0;z-index:36;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
+#hist{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);width:min(920px,100%);max-height:calc(100% - 16px);overflow:auto;padding:22px;display:grid;gap:16px}
+#hist h2{font-family:var(--f-display);font-weight:400;font-size:24px;margin:2px 0 0}
+.histbody{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px;align-items:start;min-width:0}
+.histside{display:grid;gap:8px;min-width:0}
+.histlist{display:grid;gap:4px;max-height:min(460px, 55vh);overflow:auto;padding:2px}
+.histrow{display:grid;grid-template-columns:64px 1fr;gap:10px;align-items:center;border:1px solid transparent;background:transparent;border-radius:12px;padding:6px;cursor:pointer;text-align:left;color:var(--ink);font:inherit}
+.histrow:hover{background:var(--chip)}
+.histrow[aria-pressed="true"]{background:var(--chip);border-color:var(--ink)}
+.histrow:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.histrow .mini{width:64px;height:42px;border-radius:7px;background:#FFFFFF;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden}
+.histrow .mini canvas{max-width:100%;max-height:100%}
+.histrow strong{font-size:13px;font-weight:600;display:block}
+.histrow span{font-size:12px;color:var(--muted)}
+.histrow .tag{font-size:10px;font-weight:600;background:var(--ink);color:var(--surface);border-radius:999px;padding:1px 6px;margin-left:4px}
+.histpv{display:grid;gap:10px;min-width:0}
+.pvframe{height:300px;border:1px solid var(--line);border-radius:14px;background:var(--paper);display:grid;place-items:center;overflow:hidden;padding:8px}
+.pvframe canvas{max-width:100%;max-height:100%;box-shadow:0 2px 10px rgba(0,0,0,.12);border-radius:4px}
+.hpmeta{font-size:14px;font-weight:600}
+.hpmeta span{font-weight:400;color:var(--muted);font-size:13px}
+.hpdiff{display:grid;gap:6px;font-size:13px;line-height:1.5}
+.hpdiff .row{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:baseline}
+.hpdiff .pill{font-size:11px;font-weight:600;border-radius:999px;padding:1px 8px;white-space:nowrap}
+.pill.gone{background:#FBE3DF;color:#A3271A}.pill.back{background:#DDF3E8;color:#14653F}.pill.edit{background:#E3ECFB;color:#1F4E8C}
+.hpdiff .names{color:var(--muted);word-break:keep-all}
+.hpdiff .same{color:var(--muted)}
+@media (max-width:720px){ .histbody{grid-template-columns:1fr} .histpv{order:-1} .pvframe{height:220px} .histlist{max-height:240px} }
 .samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .thumb{aspect-ratio:16/10;max-width:100%;background:#FFFFFF;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin-bottom:6px;padding:6px}
 .thumb canvas{max-width:100%;max-height:100%}
@@ -371,10 +394,25 @@ button{font:inherit;color:inherit}
   <div id="themeList" class="themelist"></div>
 </div>
 
-<div id="histPop" class="pop" hidden>
-  <div class="poplabel">버전 기록 · 고치는 동안 10분마다 자동으로 남아요 (최근 20개)</div>
-  <div id="histList" class="histlist"></div>
-  <button class="btn" id="snapNowBtn" style="width:100%;justify-content:center;margin-top:8px">지금 시점 기록하기</button>
+<div id="histWrap" hidden>
+  <div id="hist" role="dialog" aria-modal="true" aria-labelledby="histTitle">
+    <div class="anahead">
+      <div><div class="aisub">고치는 동안 10분마다 자동으로 남아요 · 맵마다 최근 20개</div><h2 id="histTitle">버전 기록</h2></div>
+      <button class="btn" id="histClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="histbody">
+      <div class="histside">
+        <div id="histList" class="histlist"></div>
+        <button class="btn" id="snapNowBtn" style="width:100%;justify-content:center">지금 시점 기록하기</button>
+      </div>
+      <div class="histpv" id="histPv">
+        <div class="pvframe" id="hpCanvas"></div>
+        <div class="hpmeta" id="hpMeta"></div>
+        <div class="hpdiff" id="hpDiff"></div>
+        <div class="actions"><button class="btn" id="hpCancel">닫기</button><button class="btn primary" id="hpRestore">이 버전으로 되돌리기</button></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="keysPop" class="pop" hidden>
@@ -1309,6 +1347,7 @@ window.addEventListener('keydown', e => {
   if (e.shiftKey && !mod && (e.key === '!' || e.code === 'Digit1')){ e.preventDefault(); fit(); return; }
   if (!$('startWrap').hidden){ if (e.key === 'Escape' && canResume) closeStart(); return; }
   if (!$('anaWrap').hidden){ if (e.key === 'Escape') closeAnalysis(); return; }
+  if (!$('histWrap').hidden){ if (e.key === 'Escape') closeHistory(); return; }
   if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
   if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
   if (e.key === '?' ){ e.preventDefault(); openPop('keysPop', $('menuBtn'), true); return; }
@@ -1547,7 +1586,7 @@ $('zoomIn').onclick = () => zoomAt(1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('zoomOut').onclick = () => zoomAt(1/1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('fitBtn').onclick = fit;
 
-function closePops(){ for (const id of ['emojiPop','colorPop','menuPop','fontPop','keysPop','shapePop','themePop','histPop']) $(id).hidden = true; }
+function closePops(){ for (const id of ['emojiPop','colorPop','menuPop','fontPop','keysPop','shapePop','themePop']) $(id).hidden = true; }
 
 // branch shapes
 const SHAPE_ICONS = {
@@ -1874,29 +1913,77 @@ async function renderMyMaps(){
 }
 
 // version history for the open map
+let histSnaps = [], histSel = null;
+const snapState = sn => { const d = JSON.parse(sn.data); return d; };
+function snapCanvas(sn, maxW, maxH){
+  const d = snapState(sn);
+  return withState(d, () => { const b = bounds(40); return renderExport(Math.min(0.9, maxW/b.w, maxH/b.h), {title:false, bg:true}); });
+}
+// what changes if this snapshot is restored, compared with the map as it is now
+function snapDiff(sn){
+  const then = snapState(sn).nodes, now = state.nodes;
+  const gone = [], back = [], edit = [];
+  for (const id in now) if (!then[id]) gone.push(now[id].text);
+  for (const id in then) if (!now[id]) back.push(then[id].text);
+  for (const id in then) if (now[id] && ((then[id].text || '') !== (now[id].text || '') || (then[id].emoji || '') !== (now[id].emoji || ''))) edit.push(`${now[id].text} → ${then[id].text}`);
+  return {gone, back, edit};
+}
+function nameList(list){ const shown = list.slice(0, 6).join(', '); return list.length > 6 ? `${shown} 외 ${list.length - 6}개` : shown; }
+function showSnap(i){
+  histSel = i; const sn = histSnaps[i]; if (!sn) return;
+  $('histList').querySelectorAll('.histrow').forEach((r, k) => r.setAttribute('aria-pressed', k === i));
+  const fr = $('hpCanvas'); fr.innerHTML = '';
+  try { fr.appendChild(snapCanvas(sn, 560, 280)); } catch(e){ fr.textContent = '미리보기를 그리지 못했어요'; }
+  const d = new Date(sn.time);
+  $('hpMeta').innerHTML = '';
+  $('hpMeta').append(`${d.getMonth()+1}월 ${d.getDate()}일 ${d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}`);
+  const sub = document.createElement('span'); sub.textContent = `  ·  ${ago(sn.time)}  ·  가지 ${Math.max(0, sn.count - 1)}개 (지금 ${Math.max(0, Object.keys(state.nodes).length - 1)}개)`; $('hpMeta').appendChild(sub);
+  const df = snapDiff(sn), box = $('hpDiff'); box.innerHTML = '';
+  const row = (cls, label, list) => {
+    if (!list.length) return;
+    const r = document.createElement('div'); r.className = 'row';
+    const p = document.createElement('span'); p.className = 'pill ' + cls; p.textContent = `${label} ${list.length}개`;
+    const n = document.createElement('span'); n.className = 'names'; n.textContent = nameList(list);
+    r.append(p, n); box.appendChild(r);
+  };
+  row('gone', '사라지는 가지', df.gone);
+  row('back', '다시 생기는 가지', df.back);
+  row('edit', '글자가 바뀌는 가지', df.edit);
+  if (!box.children.length){ const s2 = document.createElement('div'); s2.className = 'same'; s2.textContent = '지금과 내용이 같아요. 가지 위치나 접힘 상태만 다를 수 있어요.'; box.appendChild(s2); }
+  else { const h = document.createElement('div'); h.className = 'same'; h.textContent = '되돌리면 위와 같이 바뀌어요. 마음에 안 들면 Ctrl+Z로 다시 돌아올 수 있어요.'; box.appendChild(h); }
+}
 async function renderHistory(){
   const box = $('histList'); box.innerHTML = '<p class="aisub">불러오는 중…</p>';
   await saveNow();
-  const list = (await DB.snapsOf(state.id).catch(() => [])).sort((a, b) => b.time - a.time);
+  histSnaps = (await DB.snapsOf(state.id).catch(() => [])).sort((a, b) => b.time - a.time);
   box.innerHTML = '';
-  if (!list.length){ box.innerHTML = '<p class="aisub">아직 기록이 없어요. 고치는 동안 10분마다 자동으로 남아요.</p>'; return; }
-  for (const sn of list){
-    const row = document.createElement('div'); row.className = 'histrow';
-    const d = new Date(sn.time);
-    const when = document.createElement('div');
-    when.innerHTML = '<strong></strong><span class="aisub"></span>';
-    when.querySelector('strong').textContent = `${d.getMonth()+1}월 ${d.getDate()}일 ${d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}`;
-    when.querySelector('span').textContent = ` · ${ago(sn.time)} · 가지 ${Math.max(0, sn.count - 1)}개${sn.manual ? ' · 직접 기록' : ''}`;
-    const go = document.createElement('button'); go.className = 'btn'; go.textContent = '이 버전으로';
-    go.onclick = () => {
-      closePops();
-      mutate(() => { const d2 = JSON.parse(sn.data); d2.id = state.id; state = d2; sel = null; });
-      fit(); toast('그 시점으로 되돌렸어요. 마음에 안 들면 Ctrl+Z로 돌아올 수 있어요.');
-    };
-    row.append(when, go); box.appendChild(row);
-  }
+  $('histPv').hidden = !histSnaps.length;
+  if (!histSnaps.length){ box.innerHTML = '<p class="aisub">아직 기록이 없어요. 고치는 동안 10분마다 자동으로 남아요.</p>'; return; }
+  histSnaps.forEach((sn, i) => {
+    const r = document.createElement('button'); r.className = 'histrow'; r.setAttribute('aria-pressed', 'false');
+    const mini = document.createElement('div'); mini.className = 'mini';
+    try { mini.appendChild(snapCanvas(sn, 120, 80)); } catch(e){}
+    const d = new Date(sn.time), txt = document.createElement('div');
+    const t = document.createElement('strong'); t.textContent = `${d.getMonth()+1}/${d.getDate()} ${d.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'})}`;
+    if (sn.manual){ const tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = '직접'; t.appendChild(tag); }
+    const m = document.createElement('span'); m.textContent = `${ago(sn.time)} · 가지 ${Math.max(0, sn.count - 1)}개`;
+    txt.append(t, m); r.append(mini, txt);
+    r.onclick = () => showSnap(i);
+    box.appendChild(r);
+  });
+  showSnap(0);
 }
-$('histBtn').onclick = () => { closePops(); if (!libOK){ toast('이 브라우저에서는 버전 기록을 쓸 수 없어요'); return; } renderHistory(); openPop('histPop', $('menuBtn'), true); };
+function openHistory(){ closePops(); if (!libOK){ toast('이 브라우저에서는 버전 기록을 쓸 수 없어요'); return; } $('histWrap').hidden = false; renderHistory(); }
+function closeHistory(){ $('histWrap').hidden = true; }
+$('histBtn').onclick = openHistory;
+$('histClose').onclick = closeHistory; $('hpCancel').onclick = closeHistory;
+$('histWrap').addEventListener('pointerdown', e => { if (e.target === $('histWrap')) closeHistory(); });
+$('hpRestore').onclick = () => {
+  const sn = histSnaps[histSel]; if (!sn) return;
+  closeHistory();
+  mutate(() => { const d2 = JSON.parse(sn.data); d2.id = state.id; state = d2; sel = null; });
+  fit(); toast('그 시점으로 되돌렸어요. 마음에 안 들면 Ctrl+Z로 돌아올 수 있어요.');
+};
 $('snapNowBtn').onclick = async () => { await saveNow(true); await takeSnapshot(JSON.stringify(state), true); renderHistory(); toast('지금 시점을 기록했어요'); };
 
 /* ---------- AI: topic → (optional questions) → mind map ---------- */
