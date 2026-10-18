@@ -9,7 +9,7 @@
 <title>생각가지</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700&family=Nanum+Gothic:wght@400;700;800&family=Nanum+Myeongjo:wght@400;700;800&family=Nanum+Pen+Script&family=Jua&family=Do+Hyeon&family=Gowun+Dodum&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <style>
 /* Layout: full-bleed drawing board (canvas) with floating tool islands at the edges */
 :root{
@@ -74,6 +74,19 @@ button{font:inherit;color:inherit}
 .sw.none{background:var(--chip);display:grid;place-items:center;font-size:11px;color:var(--muted)}
 .poplabel{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
 #menuPop{width:240px;padding:6px}
+#fontPop{width:min(280px, calc(100vw - 32px));padding:8px}
+#fontPop .poplabel{padding:4px 8px 0}
+.fontlist{display:grid;gap:2px}
+.fontopt{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:transparent;border-radius:10px;padding:8px 10px;cursor:pointer;text-align:left;color:var(--ink)}
+.fontopt:hover{background:var(--chip)}
+.fontopt[aria-pressed="true"]{background:var(--chip);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.fontopt .fs{font-size:19px;line-height:1.3}
+.fontopt small{font-family:var(--f-ui);font-size:11px;color:var(--muted);white-space:nowrap}
+#keysPop{width:min(330px, calc(100vw - 32px))}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin:0;font-size:13px;align-items:center}
+.keys dt{white-space:nowrap}
+.keys dd{margin:0;color:var(--muted)}
+.keys kbd,#hint kbd{font-family:var(--f-ui);font-size:11px;background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin:0 1px}
 #menuPop .btn{width:100%;justify-content:flex-start}
 
 #sheetWrap{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
@@ -137,6 +150,7 @@ button{font:inherit;color:inherit}
   <div class="tools">
     <button class="btn" id="undoBtn" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
     <button class="btn" id="redoBtn" title="다시 실행 (Ctrl+Shift+Z)" aria-label="다시 실행"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    <button class="btn" id="fontBtn" title="글꼴 바꾸기" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M4 19 9.5 5h1L16 19M6.3 14h7.4"/><path d="M17 11h3m-1.5-1.5v3" /></svg><span class="lbl">글꼴</span></button>
     <button class="btn" id="layoutBtn" title="가지를 겹치지 않게 정리"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lbl">정리</span></button>
     <span class="sep"></span>
     <button class="btn primary" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 19h14"/></svg><span class="lbl">내보내기</span></button>
@@ -145,13 +159,14 @@ button{font:inherit;color:inherit}
 </header>
 
 <div id="selbar" class="island" role="toolbar" aria-label="선택한 가지 도구">
-  <div id="hint">가지를 눌러 선택하세요<span class="kb">&nbsp;· <kbd>Enter</kbd> 편집 <kbd>Tab</kbd> 가지 <kbd>Space</kbd> 형제</span></div>
+  <div id="hint">가지를 누르거나 방향키로 선택하세요<span class="kb">&nbsp;· <kbd>?</kbd> 단축키</span></div>
   <div id="selTools" style="display:flex;gap:2px" hidden>
     <button class="btn" id="addChildBtn" title="하위 가지 추가 (Tab)"><svg viewBox="0 0 24 24"><path d="M4 12c6 0 6-6 12-6"/><circle cx="19" cy="6" r="2.4"/><path d="M19 13v6m-3-3h6"/></svg><span class="lbl">가지</span></button>
     <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Space)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
     <span class="sep"></span>
     <button class="btn" id="editBtn" title="글자 고치기 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
     <button class="btn" id="emojiBtn" title="이모지"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0"/><path d="M9 10h.01M15 10h.01" stroke-width="2.6"/></svg><span class="lbl">이모지</span></button>
+    <button class="btn" id="foldBtn" title="하위 가지 접기 (-) · 펼치기 (+)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12h7"/><path id="foldPlus" d="M12 8.5v7"/></svg><span class="lbl" id="foldLbl">접기</span></button>
     <button class="btn" id="colorBtn" title="가지 색"><svg viewBox="0 0 24 24"><path d="M12 3.5c3.5 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2.5-6 6-10z"/></svg><span class="lbl">색</span></button>
     <span class="sep"></span>
     <button class="btn danger" id="delBtn" title="가지 지우기 (Delete)" aria-label="지우기"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3m-7 0 1 13h8l1-13"/></svg></button>
@@ -182,9 +197,34 @@ button{font:inherit;color:inherit}
 
 <div id="menuPop" class="pop" hidden>
   <button class="btn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M12 11v6m-3-3h6"/></svg>새 맵 · 예시 열기</button>
+  <button class="btn" id="expandAllBtn"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg>모두 펼치기</button>
+  <button class="btn" id="firstOnlyBtn"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>첫 단계만 보기</button>
+  <button class="btn" id="keysBtn"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg>단축키 보기 (?)</button>
   <button class="btn" id="saveJsonBtn"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>파일로 보관 (.json)</button>
   <button class="btn" id="openJsonBtn"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>보관 파일 열기</button>
   <input type="file" id="fileIn" accept=".json,application/json" hidden>
+</div>
+
+<div id="fontPop" class="pop" hidden>
+  <div class="poplabel">이 맵의 글꼴</div>
+  <div id="fontList" class="fontlist"></div>
+</div>
+
+<div id="keysPop" class="pop" hidden>
+  <div class="poplabel">키보드 단축키</div>
+  <dl class="keys">
+    <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>부모 · 자식 가지로 이동</dd>
+    <dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>위 · 아래 가지로 이동</dd>
+    <dt><kbd>Alt</kbd>+<kbd>↑</kbd><kbd>↓</kbd></dt><dd>같은 단계 안에서 순서 바꾸기</dd>
+    <dt><kbd>Enter</kbd></dt><dd>글자 편집 (다시 Enter로 완료)</dd>
+    <dt><kbd>Tab</kbd></dt><dd>하위 가지 추가</dd>
+    <dt><kbd>Space</kbd></dt><dd>같은 단계 가지 추가</dd>
+    <dt><kbd>Delete</kbd></dt><dd>가지 지우기</dd>
+    <dt><kbd>-</kbd> <kbd>+</kbd></dt><dd>하위 가지 접기 · 펼치기</dd>
+    <dt><kbd>.</kbd></dt><dd>접기 · 펼치기 전환</dd>
+    <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>되돌리기 (<kbd>Shift</kbd> 함께: 다시 실행)</dd>
+    <dt><kbd>Esc</kbd></dt><dd>선택 해제</dd>
+  </dl>
 </div>
 
 <div id="sheetWrap" hidden>
@@ -320,14 +360,33 @@ function colorOf(n){
   let c = n; while (c){ if (c.color) return c.color; c = c.parent ? N(c.parent) : null; }
   return PALETTE[0];
 }
+function isHidden(n){ let p = n.parent ? N(n.parent) : null; while (p){ if (p.collapsed) return true; p = p.parent ? N(p.parent) : null; } return false; }
+const visibleNodes = () => Object.values(state.nodes).filter(n => !isHidden(n));
 function subtreeIds(id){ const out=[id]; for (let i=0;i<out.length;i++) for (const k of kids(out[i])) out.push(k.id); return out; }
 
 /* ---------- measuring & geometry ---------- */
 const mctx = document.createElement('canvas').getContext('2d');
+const FONTS = [
+  {key:'noto', label:'깔끔한 고딕', family:'Noto Sans KR', w:[700,600,400], scale:1},
+  {key:'nanumgothic', label:'나눔고딕', family:'Nanum Gothic', w:[800,700,400], scale:1},
+  {key:'plex', label:'IBM 플렉스 산스', family:'IBM Plex Sans KR', w:[600,600,400], scale:1},
+  {key:'gowun', label:'고운 돋움', family:'Gowun Dodum', w:[400,400,400], scale:1.02},
+  {key:'dohyeon', label:'도현 · 굵은 제목체', family:'Do Hyeon', w:[400,400,400], scale:1.06},
+  {key:'jua', label:'주아 · 둥글고 귀여운', family:'Jua', w:[400,400,400], scale:1.04},
+  {key:'myeongjo', label:'나눔명조', family:'Nanum Myeongjo', w:[800,700,400], scale:1},
+  {key:'pen', label:'나눔손글씨 펜', family:'Nanum Pen Script', w:[400,400,400], scale:1.35}
+];
+const fontDef = () => FONTS.find(f => f.key === state.font) || FONTS[0];
+const fontStr = (f, weight, size) => `${weight} ${size}px "${f.family}","Noto Sans KR",${EMOJI_FONTS},sans-serif`;
 function styleFor(d){
-  if (d===0) return {font:`30px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:30, px:26, py:15, kind:'root'};
-  if (d===1) return {font:`21px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:21, px:17, py:10, kind:'pill'};
-  return {font:`17px "Gowun Dodum","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`, size:17, px:6, py:7, kind:'line'};
+  const f = fontDef(), k = f.scale;
+  if (d===0) return {font:fontStr(f, f.w[0], Math.round(28*k)), size:28*k, px:26, py:15, kind:'root'};
+  if (d===1) return {font:fontStr(f, f.w[1], Math.round(19*k)), size:19*k, px:17, py:10, kind:'pill'};
+  return {font:fontStr(f, f.w[2], Math.round(16*k)), size:16*k, px:6, py:7, kind:'line'};
+}
+function ensureFont(f){
+  if (!document.fonts || !document.fonts.load) return Promise.resolve();
+  return Promise.all(f.w.map(w => document.fonts.load(`${w} 20px "${f.family}"`, '가A'))).catch(() => {});
 }
 const label = n => (n.emoji ? n.emoji + ' ' : '') + (n.text || ' ');
 function geom(n){
@@ -378,8 +437,9 @@ function anchorIn(g, s){
 }
 function rr(c,x,y,w,h,r){ c.beginPath(); c.roundRect ? c.roundRect(x,y,w,h,r) : c.rect(x,y,w,h); }
 
+function badgePos(n, g){ const s = side(n) || 1, a = anchorOut(g, s); return {x: a.x + s*15, y: a.y}; }
 function drawScene(c, th, opts){
-  const nodes = Object.values(state.nodes);
+  const nodes = visibleNodes();
   const G = new Map(nodes.map(n => [n.id, geom(n)]));
   // edges
   for (const n of nodes){
@@ -402,6 +462,14 @@ function drawScene(c, th, opts){
       c.fillStyle = th.ink; c.fillText(label(n), g.x, g.y);
       c.beginPath(); c.moveTo(g.x-g.w/2, g.y+g.h/2); c.lineTo(g.x+g.w/2, g.y+g.h/2);
       c.strokeStyle = colorOf(n); c.lineWidth = 2.6; c.lineCap = 'round'; c.stroke();
+    }
+    if (n.collapsed && n.parent && kids(n.id).length){
+      const b = badgePos(n, g), cnt = subtreeIds(n.id).length - 1, txt = cnt > 99 ? '99+' : String(cnt);
+      c.font = '600 11px "IBM Plex Sans KR",system-ui,sans-serif';
+      const r = Math.max(11, c.measureText(txt).width/2 + 6);
+      rr(c, b.x - r, b.y - 11, r*2, 22, 11); c.fillStyle = colorOf(n); c.fill();
+      c.lineWidth = 2; c.strokeStyle = th.rootText; c.stroke();
+      c.fillStyle = '#FFFFFF'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(txt, b.x, b.y + 0.5);
     }
     if (opts.selection){
       const ring = (dash) => {
@@ -453,6 +521,7 @@ function addChild(pid){
   let id;
   mutate(() => {
     const p = N(pid), d = depth(p);
+    p.collapsed = false;
     let s;
     if (d===0){ const ks = kids(pid); const r = ks.filter(k=>side(k)===1).length, l = ks.length - r; s = r <= l ? 1 : -1; }
     else s = side(p) || 1;
@@ -499,7 +568,7 @@ function layout(){
   const memo = new Map();
   const subH = n => {
     if (memo.has(n.id)) return memo.get(n.id);
-    const own = geom(n).h + 16, ks = kids(n.id);
+    const own = geom(n).h + 16, ks = n.collapsed ? [] : kids(n.id);
     const v = Math.max(own, ks.reduce((a,c)=>a+subH(c), 0)); memo.set(n.id, v); return v;
   };
   const place = (list, parent, s) => {
@@ -510,7 +579,10 @@ function layout(){
       const h = subH(c), gc = geom(c);
       T[c.id] = {x: pt.x + s*(gp.w/2 + (pd===0 ? 80 : 44) + gc.w/2), y: y + h/2};
       y += h + (pd===0 ? 14 : 0);
-      place(kids(c.id).sort((a,b)=>a.y-b.y), c, s);
+      if (c.collapsed){
+        const dx = T[c.id].x - c.x, dy = T[c.id].y - c.y;
+        for (const i of subtreeIds(c.id).slice(1)) T[i] = {x: N(i).x + dx, y: N(i).y + dy};
+      } else place(kids(c.id).sort((a,b)=>a.y-b.y), c, s);
     }
   };
   const l1 = kids(root.id);
@@ -535,7 +607,7 @@ function runLayout(animate){
 /* ---------- view ---------- */
 function bounds(pad=0){
   let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
-  for (const n of Object.values(state.nodes)){ const g = geom(n); x0=Math.min(x0,g.x-g.w/2); x1=Math.max(x1,g.x+g.w/2); y0=Math.min(y0,g.y-g.h/2); y1=Math.max(y1,g.y+g.h/2+3); }
+  for (const n of visibleNodes()){ const g = geom(n), bx = n.collapsed ? 30 : 0; x0=Math.min(x0,g.x-g.w/2-bx); x1=Math.max(x1,g.x+g.w/2+bx); y0=Math.min(y0,g.y-g.h/2); y1=Math.max(y1,g.y+g.h/2+3); }
   return {x0:x0-pad, y0:y0-pad, x1:x1+pad, y1:y1+pad, w:x1-x0+pad*2, h:y1-y0+pad*2};
 }
 function fit(){
@@ -559,8 +631,15 @@ function ensureVisible(id){
   redraw();
 }
 const toWorld = (sx,sy) => ({x:(sx-view.x)/view.k, y:(sy-view.y)/view.k});
+function hitBadge(wx, wy){
+  for (const n of visibleNodes()){
+    if (!n.collapsed || !n.parent) continue;
+    const b = badgePos(n, geom(n)); if (Math.hypot(wx-b.x, wy-b.y) <= 14) return n.id;
+  }
+  return null;
+}
 function hit(wx, wy, exclude){
-  const list = Object.values(state.nodes);
+  const list = visibleNodes();
   for (let i=list.length-1;i>=0;i--){
     const n = list[i]; if (exclude && exclude.has(n.id)) continue;
     const g = geom(n), pad = 6;
@@ -580,7 +659,9 @@ cv.addEventListener('pointerdown', e => {
     if (drag && drag.type==='node' && drag.moved) restoreDrag();
     drag = null; return;
   }
-  const w = toWorld(e.clientX, e.clientY), id = hit(w.x, w.y);
+  const w = toWorld(e.clientX, e.clientY), bid = hitBadge(w.x, w.y);
+  if (bid){ sel = bid; toggleCollapse(bid, false); drag = null; return; }
+  const id = hit(w.x, w.y);
   if (id){
     sel = id; syncUI();
     const ids = subtreeIds(id);
@@ -650,7 +731,7 @@ function startEdit(id, isNew){
   editing = {id, isNew}; sel = id;
   const g = geom(n), k = view.k;
   ed.value = n.text; ed.hidden = false;
-  ed.style.font = g.st.font.replace(/^(\d+)px/, (m, p) => (p*k) + 'px');
+  ed.style.font = g.st.font.replace(/(\d+(?:\.\d+)?)px/, (m, p) => (p*k) + 'px');
   const w = Math.max(g.w*k + 40, 160), h = g.h*k + 8;
   ed.style.width = w + 'px'; ed.style.height = h + 'px';
   ed.style.left = (g.x*k + view.x - w/2) + 'px'; ed.style.top = (g.y*k + view.y - h/2) + 'px';
@@ -683,18 +764,105 @@ window.addEventListener('keydown', e => {
   if (!$('startWrap').hidden){ if (e.key === 'Escape' && canResume) closeStart(); return; }
   if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
   if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
+  if (e.key === '?' ){ e.preventDefault(); openPop('keysPop', $('menuBtn'), true); return; }
+  if (e.key.startsWith('Arrow')){
+    e.preventDefault();
+    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) reorder(e.key === 'ArrowUp' ? -1 : 1);
+    else navigate(e.key);
+    return;
+  }
   if (!sel) return;
-  if (e.key === 'Tab'){ e.preventDefault(); addChild(sel); }
+  if (e.key === 'Tab' || e.key === 'Insert'){ e.preventDefault(); addChild(sel); }
   else if (e.key === ' '){ e.preventDefault(); addSibling(sel); }
   else if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); removeNode(sel); }
   else if (e.key === 'Enter' || e.key === 'F2'){ e.preventDefault(); startEdit(sel, false); }
+  else if (e.key === '-' || e.key === '_'){ e.preventDefault(); toggleCollapse(sel, true); }
+  else if (e.key === '=' || e.key === '+'){ e.preventDefault(); toggleCollapse(sel, false); }
+  else if (e.key === '.'){ e.preventDefault(); toggleCollapse(sel); }
 });
+
+/* ---------- keyboard navigation & folding ---------- */
+function navigate(key){
+  if (!sel || !N(sel)){ sel = state.root; syncUI(); ensureVisible(sel); return; }
+  const n = N(sel), s = side(n);
+  const nearestKid = (dirSide) => {
+    if (n.collapsed) return null;
+    const ks = kids(n.id).filter(k => n.parent ? true : side(k) === dirSide);
+    let best = null; for (const k of ks) if (!best || Math.abs(k.y - n.y) < Math.abs(best.y - n.y)) best = k;
+    return best;
+  };
+  if (key === 'ArrowLeft' || key === 'ArrowRight'){
+    const dir = key === 'ArrowRight' ? 1 : -1;
+    if (!n.parent){ const k = nearestKid(dir); if (k) sel = k.id; }
+    else if (dir === s){
+      if (n.collapsed && kids(n.id).length){ toggleCollapse(n.id, false); return; }
+      const k = nearestKid(s); if (k) sel = k.id;
+    } else sel = n.parent;
+  } else {
+    if (!n.parent) return;
+    const up = key === 'ArrowUp', d = depth(n);
+    const pick = (filter) => {
+      let best = null;
+      for (const m of visibleNodes()){
+        if (m.id === n.id || !m.parent || side(m) !== s || !filter(m)) continue;
+        const dy = m.y - n.y; if (up ? dy >= -1 : dy <= 1) continue;
+        if (!best || Math.abs(dy) < Math.abs(best.y - n.y)) best = m;
+      }
+      return best;
+    };
+    const m = pick(m => m.parent === n.parent) || pick(m => depth(m) === d) || pick(() => true);
+    if (m) sel = m.id;
+  }
+  syncUI(); ensureVisible(sel); redraw();
+}
+function reorder(dir){
+  const n = N(sel); if (!n || !n.parent) return;
+  const s = side(n);
+  const sib = kids(n.parent).filter(k => side(k) === s).sort((a,b) => a.y - b.y);
+  const i = sib.findIndex(k => k.id === n.id), j = i + dir;
+  if (j < 0 || j >= sib.length) return;
+  const o = sib[j];
+  mutate(() => {
+    const a = subtreeIds(n.id).map(N), b = subtreeIds(o.id).map(N);
+    const ext = list => { const ys = list.filter(m => !isHidden(m)).map(m => [m.y - geom(m).h/2, m.y + geom(m).h/2]); return [Math.min(...ys.map(v=>v[0])), Math.max(...ys.map(v=>v[1]))]; };
+    const ea = ext(a), eb = ext(b);
+    // swap the two vertical blocks, keeping the gap between them
+    if (dir < 0){ moveSubtree(n.id, 0, eb[0] - ea[0]); moveSubtree(o.id, 0, ea[1] - eb[1]); }
+    else { moveSubtree(o.id, 0, ea[0] - eb[0]); moveSubtree(n.id, 0, eb[1] - ea[1]); }
+  });
+  ensureVisible(sel);
+}
+function toggleCollapse(id, val){
+  const n = N(id); if (!n) return;
+  if (!n.parent){ toast('가운데 주제는 접을 수 없어요'); return; }
+  if (!kids(id).length){ if (val !== false) toast('접을 하위 가지가 없어요'); return; }
+  mutate(() => {
+    n.collapsed = val === undefined ? !n.collapsed : val;
+    if (n.collapsed && sel && sel !== id && subtreeIds(id).includes(sel)) sel = id;
+  });
+}
+function setAllCollapsed(mode){
+  mutate(() => {
+    for (const n of Object.values(state.nodes)){
+      if (!n.parent) continue;
+      n.collapsed = mode === 'first' ? (depth(n) === 1 && kids(n.id).length > 0) : false;
+    }
+    if (sel && isHidden(N(sel))){ let p = N(sel); while (isHidden(p)) p = N(p.parent); sel = p.id; }
+  });
+  fit();
+}
 
 /* ---------- UI wiring ---------- */
 function syncUI(){
   $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length;
   $('hint').hidden = !!sel; $('selTools').hidden = !sel;
-  if (sel) $('delBtn').disabled = !N(sel) || !N(sel).parent;
+  if (sel && N(sel)){
+    const n = N(sel);
+    $('delBtn').disabled = !n.parent;
+    $('foldBtn').disabled = !n.parent || !kids(n.id).length;
+    $('foldLbl').textContent = n.collapsed ? '펼치기' : '접기';
+    $('foldPlus').style.display = n.collapsed ? '' : 'none';
+  }
   if (document.activeElement !== $('title')) $('title').value = state.title || '';
 }
 $('title').addEventListener('change', () => { const v = $('title').value.trim() || '제목 없는 마인드맵'; mutate(() => { state.title = v; }); });
@@ -709,7 +877,35 @@ $('zoomIn').onclick = () => zoomAt(1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('zoomOut').onclick = () => zoomAt(1/1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('fitBtn').onclick = fit;
 
-function closePops(){ for (const id of ['emojiPop','colorPop','menuPop']) $(id).hidden = true; }
+function closePops(){ for (const id of ['emojiPop','colorPop','menuPop','fontPop','keysPop']) $(id).hidden = true; }
+
+// folding
+$('foldBtn').onclick = () => toggleCollapse(sel);
+$('expandAllBtn').onclick = () => { closePops(); setAllCollapsed('none'); };
+$('firstOnlyBtn').onclick = () => { closePops(); setAllCollapsed('first'); };
+$('keysBtn').onclick = () => { closePops(); openPop('keysPop', $('menuBtn'), true); };
+
+// fonts
+function renderFonts(){
+  const box = $('fontList'); box.innerHTML = '';
+  const cur = fontDef().key;
+  for (const f of FONTS){
+    const b = document.createElement('button'); b.className = 'fontopt'; b.setAttribute('aria-pressed', f.key === cur);
+    const s = document.createElement('span'); s.className = 'fs'; s.textContent = '생각가지 Aa';
+    s.style.fontFamily = `"${f.family}", var(--f-ui)`; s.style.fontWeight = f.w[1];
+    if (f.scale > 1.2) s.style.fontSize = '24px';
+    const l = document.createElement('small'); l.textContent = f.label;
+    b.append(s, l);
+    b.onclick = async () => {
+      closePops();
+      await ensureFont(f);
+      mutate(() => { state.font = f.key; });
+      toast(`글꼴을 '${f.label}'(으)로 바꿨어요. 겹치면 '정리'를 눌러 주세요.`);
+    };
+    box.appendChild(b);
+  }
+}
+$('fontBtn').onclick = e => { renderFonts(); openPop('fontPop', e.currentTarget, true); };
 function openPop(pop, anchor, alignRight){
   const was = !$(pop).hidden; closePops(); if (was) return;
   const p = $(pop); p.hidden = false;
@@ -720,7 +916,7 @@ function openPop(pop, anchor, alignRight){
   p.style.left = left + 'px'; p.style.top = top + 'px';
 }
 document.addEventListener('pointerdown', e => {
-  if (e.target.closest('.pop') || e.target.closest('#emojiBtn,#colorBtn,#menuBtn') || e.target === cv) return;
+  if (e.target.closest('.pop') || e.target.closest('#emojiBtn,#colorBtn,#menuBtn,#fontBtn,#keysBtn') || e.target === cv) return;
   closePops();
 });
 
@@ -797,6 +993,7 @@ function chooseMap(s){
   const had = canResume;
   state = s; sel = null; canResume = true; autoRelayout = false;
   closeStart(); afterChange(); fit();
+  ensureFont(fontDef()).then(() => refont());
   if (had) toast('이전 맵은 되돌리기로 다시 불러올 수 있어요');
 }
 $('startBlank').onclick = () => { chooseMap(blankMap()); sel = 'n0'; syncUI(); startEdit('n0', true); };
@@ -832,7 +1029,7 @@ function renderExport(scale, opts){
   if (opts.bg){ x.fillStyle = '#FFFFFF'; x.fillRect(0,0,W,H); }
   if (opts.title){
     x.setTransform(scale,0,0,scale,0,0);
-    x.font = `30px "Do Hyeon","IBM Plex Sans KR",${EMOJI_FONTS},sans-serif`; x.fillStyle = '#1B2230';
+    x.font = fontStr(fontDef(), fontDef().w[0], Math.round(28*fontDef().scale)); x.fillStyle = '#1B2230';
     x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(state.title || '마인드맵', 56, 62);
     x.fillStyle = '#C9D1DB'; x.fillRect(56, 76, b.w - 112, 1.5);
   }
@@ -933,7 +1130,8 @@ new ResizeObserver(() => redraw()).observe(cv);
 syncUI();
 fit();
 openStart();
-const refont = () => {
+Promise.all([ensureFont(FONTS[0]), ensureFont(fontDef())]).then(() => refont());
+function refont(){
   if (autoRelayout){ arrange(state); persist(); fit(); }
   if (!$('startWrap').hidden) renderSamples();
   redraw();
