@@ -141,6 +141,28 @@ button{font:inherit;color:inherit}
 .card.big{background:var(--chip);border-color:transparent;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}
 .card.big .ico{grid-row:span 2;width:40px;height:40px;border-radius:12px;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:20px}
 .card.big:hover{border-color:var(--ink)}
+.aicard{border:1.5px solid var(--ink);border-radius:18px;padding:16px;display:grid;gap:10px;background:var(--surface)}
+.aihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aihead strong{font-size:16px}
+.aibadge{font-size:11px;font-weight:700;letter-spacing:.06em;background:var(--ink);color:var(--surface);border-radius:6px;padding:2px 7px}
+.aisub{font-size:13px;color:var(--muted);margin:0;line-height:1.5}
+#aiTopic{width:100%;box-sizing:border-box;resize:vertical;min-height:56px;border:1px solid var(--line);border-radius:12px;background:var(--paper);color:var(--ink);padding:10px 12px;font:inherit;font-size:15px;line-height:1.5}
+#aiTopic:focus-visible{outline:2px solid var(--sel);outline-offset:1px}
+.airow{display:flex;align-items:center;gap:8px;justify-content:space-between;flex-wrap:wrap}
+.aikey input{flex:1;min-width:160px;height:36px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);padding:0 10px;font:inherit}
+.aiqlist{display:grid;gap:12px}
+.aiq{display:grid;gap:6px}
+.aiq label{font-size:14px;font-weight:600}
+.aiq .chips{display:flex;gap:6px;flex-wrap:wrap}
+.aiq .chip{border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:5px 11px;font-size:13px;cursor:pointer}
+.aiq .chip:hover{border-color:var(--ink)}
+.aiq .chip[aria-pressed="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.aiq input{height:36px;border:1px solid var(--line);border-radius:10px;background:var(--paper);color:var(--ink);padding:0 10px;font:inherit;font-size:14px}
+.aistatus{display:flex;align-items:center;gap:10px;font-size:14px}
+.aistatus #aiStatusText{flex:1}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--ink);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.aierr{margin:0;font-size:13px;color:#D23B2A;line-height:1.5}
 .samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .thumb{aspect-ratio:16/10;max-width:100%;background:#FFFFFF;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin-bottom:6px;padding:6px}
 .thumb canvas{max-width:100%;max-height:100%}
@@ -308,6 +330,31 @@ button{font:inherit;color:inherit}
       <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 13 C17 13 18 6 23 6" stroke="#E2553F" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C17 13 18 20 23 20" stroke="#2C7BD6" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 7 3 7" stroke="#16956C" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 19 3 19" stroke="#C77A0A" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="13" r="5" fill="currentColor"/></svg>
       <div><h2 id="startTitle">무엇으로 시작할까요?</h2><p class="note">빈 페이지에서 바로 그리거나, 예시를 골라 고쳐 쓰세요.</p></div>
     </div>
+    <section class="aicard" id="aiCard" aria-labelledby="aiTitle">
+      <div class="aihead"><span class="aibadge">AI</span><strong id="aiTitle">AI로 만들기</strong><span class="aisub">주제나 내용을 적으면 마인드맵을 그려 드려요</span></div>
+      <textarea id="aiTopic" rows="2" maxlength="2000" placeholder="예: 초등학생 여름방학 계획 / 카페 창업 준비 / 이번 분기 마케팅 전략"></textarea>
+      <div class="seg" id="aiLevel" role="group" aria-label="얼마나 자세히"><button data-v="1" aria-pressed="true">1단계 · 심플</button><button data-v="2" aria-pressed="false">2단계 · 보통</button><button data-v="3" aria-pressed="false">3단계 · 심화</button></div>
+      <p class="aisub" id="aiLevelNote"></p>
+      <div class="airow">
+        <label class="check"><input type="checkbox" id="aiAsk" checked> 만들기 전에 AI가 먼저 질문하기</label>
+        <button class="btn primary" id="aiGo"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>AI로 만들기</button>
+      </div>
+      <div id="aiKeyRow" class="aikey" hidden>
+        <p class="aisub">이 페이지에서 AI를 쓰려면 Claude API 키가 필요해요. 키는 이 브라우저에만 저장되고 Anthropic 서버로만 보내져요.</p>
+        <div class="airow"><input id="aiKey" type="password" autocomplete="off" placeholder="sk-ant-..." aria-label="Claude API 키"><button class="btn" id="aiKeySave">저장</button><button class="btn" id="aiKeyClear" hidden>키 지우기</button></div>
+      </div>
+      <div id="aiQs" hidden>
+        <div class="aisub" style="margin-bottom:6px">AI가 묻는 질문이에요. 답을 고르거나 직접 적어 주세요.</div>
+        <div id="aiQList" class="aiqlist"></div>
+        <div class="airow" style="justify-content:flex-end;flex-wrap:wrap">
+          <button class="btn" id="aiAutoAnswer">AI가 대신 답하기</button>
+          <button class="btn" id="aiSkip">질문 건너뛰기</button>
+          <button class="btn primary" id="aiBuild">이 답으로 만들기</button>
+        </div>
+      </div>
+      <div id="aiStatus" class="aistatus" hidden><span class="spin" aria-hidden="true"></span><span id="aiStatusText">생각하는 중…</span><button class="btn" id="aiStop">멈추기</button></div>
+      <p id="aiError" class="aierr" role="alert" hidden></p>
+    </section>
     <div class="startMain">
       <button class="card big" id="startBlank"><span class="ico">＋</span><strong>빈 페이지</strong><span>가운데 주제 하나로 시작해요</span></button>
       <button class="card big" id="startResume" hidden><span class="ico">↩</span><strong>이어서 하기</strong><span id="resumeTitle"></span></button>
@@ -1446,6 +1493,215 @@ function chooseMap(s){
 }
 $('startBlank').onclick = () => { chooseMap(blankMap()); sel = 'n0'; syncUI(); startEdit('n0', true); };
 $('startResume').onclick = closeStart;
+
+/* ---------- AI: topic → (optional questions) → mind map ---------- */
+const AI_LEVELS = {
+  1: {note:'가운데 주제와 주요 가지 4~6개, 그 아래 한 단계까지. 빠르게 훑어볼 때 좋아요.',
+      rule:'가운데 주제 아래 주요 가지 4~6개, 각 주요 가지 아래 하위 가지 2~3개. 깊이는 정확히 2단계.'},
+  2: {note:'주요 가지 5~7개, 세 단계 깊이. 계획을 세울 때 알맞아요.',
+      rule:'가운데 주제 아래 주요 가지 5~7개, 각각 하위 가지 3~4개, 하위 가지 대부분에 그 아래 가지 1~3개. 깊이 3단계.'},
+  3: {note:'주요 가지 6~8개, 네 단계 깊이에 구체적인 예시와 할 일까지 담아요.',
+      rule:'가운데 주제 아래 주요 가지 6~8개, 각각 하위 가지 3~5개, 그 아래 2~4개, 필요한 곳은 한 단계 더(최대 4단계). 마지막 단계에는 구체적인 예시, 할 일, 기준, 수치를 넣어.'}
+};
+let aiLevel = 1, aiCtl = null, aiQuestions = [];
+const KEY_STORE = STORE + '.apikey';
+const getKey = () => { try { return localStorage.getItem(KEY_STORE) || ''; } catch(e){ return ''; } };
+function setLevel(v){
+  aiLevel = v;
+  $('aiLevel').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v == v));
+  $('aiLevelNote').textContent = AI_LEVELS[v].note;
+}
+$('aiLevel').querySelectorAll('button').forEach(b => b.onclick = () => setLevel(Number(b.dataset.v)));
+setLevel(1);
+
+let sampleFn;   // undefined: not asked yet, null: not available in this view
+async function aiEngine(){
+  if (window.claude && typeof window.claude.use === 'function'){
+    if (sampleFn === undefined) sampleFn = await window.claude.use('sample');
+    return sampleFn ? 'claude' : 'none';
+  }
+  return getKey() ? 'key' : 'needkey';
+}
+function parseLooseJSON(text){
+  try { return JSON.parse(text); } catch(e){}
+  const fence = /```(?:json)?\s*([\s\S]*?)```/.exec(text); if (fence){ try { return JSON.parse(fence[1]); } catch(e){} }
+  const a = text.indexOf('{'), b = text.lastIndexOf('}');
+  if (a >= 0 && b > a){ try { return JSON.parse(text.slice(a, b + 1)); } catch(e){} }
+  throw {code:'invalid_json'};
+}
+async function aiJSON(prompt, {signal, onText, quick} = {}){
+  const eng = await aiEngine();
+  if (eng === 'claude') return sampleFn.json(prompt, {signal, onText, cache:false, modelTier: quick ? 'quick' : 'default'});
+  if (eng === 'key'){
+    let res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method:'POST', signal,
+        headers:{'content-type':'application/json', 'x-api-key':getKey(), 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({model:'claude-sonnet-5-5', max_tokens: 8000, messages:[{role:'user', content:prompt}]})
+      });
+    } catch(e){ throw {code: e && e.name === 'AbortError' ? 'cancelled' : 'network'}; }
+    if (!res.ok) throw {code: res.status === 401 ? 'bad_key' : res.status === 429 ? 'rate_limited' : 'upstream_error'};
+    const j = await res.json();
+    return parseLooseJSON((j.content || []).filter(b => b.type === 'text').map(b => b.text).join(''));
+  }
+  throw {code: eng === 'needkey' ? 'need_key' : 'unavailable'};
+}
+const AI_ERRORS = {
+  not_granted:'AI 사용을 허용하지 않아서 만들지 못했어요.',
+  sampling_disabled:'이 계정에서는 AI를 쓸 수 없어요.',
+  rate_limited:'AI 요청이 많아요. 잠시 뒤에 다시 눌러 주세요.',
+  session_expired:'로그인이 만료됐어요. 다시 로그인한 뒤 시도해 주세요.',
+  refused:'이 주제로는 만들 수 없어요. 내용을 바꿔서 다시 시도해 주세요.',
+  invalid_json:'AI 답을 마인드맵으로 바꾸지 못했어요. 한 번 더 눌러 주세요.',
+  empty_completion:'AI가 답을 주지 않았어요. 주제를 조금 더 자세히 적어 주세요.',
+  bad_key:'API 키가 맞지 않아요. 키를 확인해 주세요.',
+  network:'인터넷 연결을 확인한 뒤 다시 시도해 주세요.',
+  unavailable:'이 화면에서는 AI를 쓸 수 없어요.',
+  need_key:'API 키를 넣으면 바로 만들 수 있어요.'
+};
+function aiBusy(on, text){
+  $('aiStatus').hidden = !on; if (text) $('aiStatusText').textContent = text;
+  $('aiGo').disabled = on; $('aiBuild').disabled = on; $('aiAutoAnswer').disabled = on; $('aiSkip').disabled = on;
+}
+function aiFail(e){
+  aiBusy(false);
+  const code = e && e.code;
+  if (code === 'cancelled') return;
+  if (code === 'need_key'){ $('aiKeyRow').hidden = false; $('aiKey').focus(); }
+  $('aiError').textContent = AI_ERRORS[code] || 'AI 연결이 잠시 끊겼어요. 다시 시도해 주세요.';
+  $('aiError').hidden = false;
+}
+function aiReset(){ $('aiError').hidden = true; $('aiQs').hidden = true; aiQuestions = []; }
+
+async function aiStart(){
+  const topic = $('aiTopic').value.trim();
+  aiReset();
+  if (!topic){ $('aiTopic').focus(); $('aiError').textContent = '어떤 마인드맵을 만들지 한 줄로 적어 주세요.'; $('aiError').hidden = false; return; }
+  if ($('aiAsk').checked) return aiAsk(topic);
+  return aiGenerate(topic, []);
+}
+async function aiAsk(topic){
+  aiCtl = new AbortController(); aiBusy(true, 'AI가 질문을 고르는 중…');
+  try {
+    const data = await aiJSON(
+      `너는 마인드맵 작성 도우미야. 사용자가 아래 주제로 마인드맵을 만들려고 해.\n주제: ${topic}\n상세 수준: ${AI_LEVELS[aiLevel].rule}\n\n` +
+      `더 알맞은 마인드맵을 만들기 위해 사용자에게 물어볼 짧은 질문을 3개 만들어. 대상, 목적, 기간, 범위, 형편처럼 답에 따라 가지 내용이 크게 달라지는 것을 물어봐. ` +
+      `각 질문마다 사용자가 바로 고를 수 있는 짧은 답 예시를 3개 붙여. 모두 한국어.\n` +
+      `JSON으로만 답해: {"questions":[{"q":"질문","options":["답1","답2","답3"]}]}`,
+      {signal: aiCtl.signal, quick: true});
+    const qs = (data && Array.isArray(data.questions) ? data.questions : []).slice(0, 4)
+      .map(q => ({q: String(q.q || '').slice(0, 120), options: (Array.isArray(q.options) ? q.options : []).slice(0, 4).map(o => String(o).slice(0, 60))}))
+      .filter(q => q.q);
+    aiBusy(false);
+    if (!qs.length) return aiGenerate(topic, []);
+    aiQuestions = qs; renderQuestions();
+  } catch(e){ aiFail(e); }
+}
+function renderQuestions(){
+  const box = $('aiQList'); box.innerHTML = '';
+  aiQuestions.forEach((q, i) => {
+    const wrap = document.createElement('div'); wrap.className = 'aiq';
+    const lab = document.createElement('label'); lab.htmlFor = 'aiA' + i; lab.textContent = (i + 1) + '. ' + q.q;
+    const chips = document.createElement('div'); chips.className = 'chips';
+    const inp = document.createElement('input'); inp.id = 'aiA' + i; inp.placeholder = '직접 적기'; inp.maxLength = 200;
+    q.options.forEach(o => {
+      const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.textContent = o; c.setAttribute('aria-pressed', 'false');
+      c.onclick = () => { inp.value = o; chips.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x === c)); };
+      chips.appendChild(c);
+    });
+    inp.oninput = () => chips.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', x.textContent === inp.value));
+    wrap.append(lab, chips, inp); box.appendChild(wrap);
+  });
+  $('aiQs').hidden = false;
+  const first = $('aiA0'); if (first) first.focus();
+}
+function collectAnswers(){ return aiQuestions.map((q, i) => ({q: q.q, a: ($('aiA' + i) || {}).value ? $('aiA' + i).value.trim() : ''})); }
+$('aiAutoAnswer').onclick = async () => {
+  const topic = $('aiTopic').value.trim();
+  aiCtl = new AbortController(); aiBusy(true, 'AI가 답을 정하는 중…'); $('aiError').hidden = true;
+  try {
+    const data = await aiJSON(
+      `주제 "${topic}"로 마인드맵을 만들기 전에 받은 질문들이야. 이 주제를 적은 사람에게 가장 그럴듯하고 쓸모 있는 답을 각각 한 줄로 정해 줘. 한국어.\n` +
+      aiQuestions.map((q, i) => `${i + 1}. ${q.q} (예시: ${q.options.join(', ')})`).join('\n') +
+      `\nJSON으로만 답해: {"answers":["답1","답2"]}`,
+      {signal: aiCtl.signal, quick: true});
+    const ans = data && Array.isArray(data.answers) ? data.answers : [];
+    ans.forEach((a, i) => { const inp = $('aiA' + i); if (inp){ inp.value = String(a).slice(0, 200); inp.oninput(); } });
+    aiBusy(false);
+  } catch(e){ aiFail(e); }
+};
+$('aiSkip').onclick = () => aiGenerate($('aiTopic').value.trim(), []);
+$('aiBuild').onclick = () => aiGenerate($('aiTopic').value.trim(), collectAnswers());
+$('aiGo').onclick = aiStart;
+$('aiTopic').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && !e.isComposing){ e.preventDefault(); aiStart(); } });
+$('aiStop').onclick = () => { if (aiCtl) aiCtl.abort(); aiBusy(false); };
+$('aiKeySave').onclick = () => {
+  const k = $('aiKey').value.trim(); if (!k) return;
+  try { localStorage.setItem(KEY_STORE, k); } catch(e){}
+  $('aiKey').value = ''; $('aiError').hidden = true; syncKeyRow(); toast('API 키를 이 브라우저에 저장했어요');
+};
+$('aiKeyClear').onclick = () => { try { localStorage.removeItem(KEY_STORE); } catch(e){} syncKeyRow(); toast('API 키를 지웠어요'); };
+function syncKeyRow(){
+  const has = !!getKey();
+  $('aiKeyRow').hidden = false;
+  $('aiKey').hidden = has; $('aiKeySave').hidden = has; $('aiKeyClear').hidden = !has;
+  $('aiKeyRow').querySelector('.aisub').textContent = has
+    ? 'Claude API 키가 이 브라우저에 저장돼 있어요.'
+    : '이 페이지에서 AI를 쓰려면 Claude API 키가 필요해요. 키는 이 브라우저에만 저장되고 Anthropic 서버로만 보내져요.';
+}
+
+async function aiGenerate(topic, answers){
+  if (!topic) return;
+  $('aiError').hidden = true;
+  aiCtl = new AbortController(); aiBusy(true, 'AI가 마인드맵을 그리는 중…');
+  const extra = answers.filter(x => x.a).map(x => `- ${x.q} → ${x.a}`).join('\n');
+  const prompt =
+    `한국어 마인드맵을 만들어 줘.\n주제: ${topic}\n` + (extra ? `사용자가 알려 준 정보:\n${extra}\n` : '') +
+    `\n상세 수준: ${AI_LEVELS[aiLevel].rule}\n` +
+    `규칙:\n- 각 가지 글은 2~14자 정도의 짧은 명사구나 할 일. 문장으로 쓰지 마.\n- 가운데 주제와 주요 가지마다 어울리는 이모지 1개. 그 아래 가지는 꼭 도움이 될 때만 이모지.\n- 같은 내용을 반복하지 말고, 주요 가지끼리 겹치지 않게 나눠.\n` +
+    `JSON으로만 답해: {"title":"맵 제목","root":{"text":"가운데 주제","emoji":"🎯"},"branches":[{"text":"주요 가지","emoji":"📌","children":[{"text":"하위 가지","emoji":"","children":[]}]}]}`;
+  let n = 0;
+  try {
+    const data = await aiJSON(prompt, {signal: aiCtl.signal, onText: ({text}) => {
+      const c = (text.match(/"text"\s*:/g) || []).length;
+      if (c !== n){ n = c; $('aiStatusText').textContent = `AI가 마인드맵을 그리는 중… 가지 ${Math.max(0, c - 1)}개`; }
+    }});
+    const s = mapFromAI(data, topic);
+    if (Object.keys(s.nodes).length < 2) throw {code:'invalid_json'};
+    aiBusy(false); aiReset();
+    chooseMap(arrange(s)); autoRelayout = true;
+    toast(`AI가 가지 ${Object.keys(s.nodes).length - 1}개로 만들었어요. 마음대로 고쳐 쓰세요.`);
+  } catch(e){ aiFail(e); }
+}
+function mapFromAI(data, topic){
+  const clean = (v, max) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max);
+  const emo = v => { const t = clean(v, 8); return /\p{Extended_Pictographic}/u.test(t) ? [...t].slice(0, 3).join('') : ''; };
+  const title = clean(data && data.title, 60) || clean(topic, 40);
+  const s = {title, root:'n0', seq:0, nodes:{}, layout:'both'};
+  const r = (data && data.root) || {};
+  s.nodes.n0 = {id:'n0', parent:null, text: clean(r.text, 40) || clean(topic, 30), emoji: emo(r.emoji), x:0, y:0, color:null, ord:s.seq++};
+  let count = 0;
+  const walk = (list, parentId, depth, sideX) => {
+    if (!Array.isArray(list) || depth > 5) return;
+    list.slice(0, depth === 1 ? 10 : 8).forEach((b, i) => {
+      if (count >= 220) return;
+      const text = clean(b && (b.text || b.title || b.name), 50); if (!text) return;
+      const id = 'a' + (++count);
+      const sx = depth === 1 ? (i < Math.ceil(Math.min(list.length, 10)/2) ? 1 : -1) : sideX;
+      s.nodes[id] = {id, parent:parentId, text, emoji: emo(b.emoji), x: sx*200*depth, y:i, color: depth === 1 ? PALETTE[i % 8] : null, ord: s.seq++};
+      walk(b.children, id, depth + 1, sx);
+    });
+  };
+  walk(data && data.branches, 'n0', 1, 1);
+  return s;
+}
+// show the right way in: Claude viewer uses Claude directly, a standalone page needs an API key
+(async () => {
+  const eng = await aiEngine();
+  if (eng === 'none'){ $('aiCard').hidden = true; }
+  if (eng === 'needkey' || eng === 'key') syncKeyRow();
+})();
 $('saveJsonBtn').onclick = async () => { closePops(); await saveFile(fileBase() + '.json', new Blob([JSON.stringify(state, null, 1)], {type:'application/json'})); };
 $('openJsonBtn').onclick = () => { closePops(); $('fileIn').click(); };
 $('fileIn').onchange = () => {
