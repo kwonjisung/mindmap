@@ -216,6 +216,38 @@ button{font:inherit;color:inherit}
 .samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
 .thumb{aspect-ratio:16/10;max-width:100%;background:#FFFFFF;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin-bottom:6px;padding:6px}
 .thumb canvas{max-width:100%;max-height:100%}
+#anaWrap{position:fixed;inset:0;z-index:36;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
+#ana{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);width:min(860px,100%);max-height:calc(100% - 16px);overflow:auto;padding:24px;display:grid;gap:22px}
+.anahead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.anahead h2{font-family:var(--f-display);font-weight:400;font-size:26px;margin:2px 0 0;text-wrap:balance;word-break:keep-all}
+#ana section{display:grid;gap:8px;min-width:0}
+#ana h3{margin:0;font-size:15px;font-weight:600}
+#ana .aisub{max-width:68ch;word-break:keep-all}
+.anastats{display:flex;flex-wrap:wrap;gap:8px}
+.anastat{background:var(--chip);border-radius:12px;padding:8px 12px;display:grid;gap:2px;min-width:92px}
+.anastat b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums}
+.anastat span{font-size:12px;color:var(--muted)}
+.dgscroll{overflow-x:auto;border:1px solid var(--line);border-radius:16px;background:var(--paper);padding:10px}
+.dg{display:block;width:100%;min-width:680px;height:auto}
+.dg-node rect{fill:var(--surface);stroke:var(--line);stroke-width:1.2}
+.dg-node.hl rect{stroke:var(--ink);stroke-width:2}
+.dg-node.soft rect{fill:var(--chip);stroke:none}
+.dg-cap{stroke:none!important}
+.dg-cap.c1{fill:#E2553F}.dg-cap.c2{fill:#2C7BD6}.dg-cap.c3{fill:#16956C}.dg-cap.c4{fill:#8A55D4}
+.dg-node:has(.dg-cap) .dg-h{fill:#FFFFFF}
+.dg-h{fill:var(--ink);font:600 14px var(--f-ui);text-anchor:middle}
+.dg-h.l{text-anchor:start}
+.dg-t{fill:var(--ink);font:12.5px var(--f-ui);opacity:.85}
+.dg-t.c{text-anchor:middle}
+.dg-s{fill:var(--muted);font:11.5px var(--f-ui)}
+.dg-s.c{text-anchor:middle}
+.dg-line{fill:none;stroke:var(--muted);stroke-width:1.6}
+.dg-line.dash{stroke-dasharray:5 4}
+.dg-arrowhead{fill:var(--muted)}
+.anacards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.anacards div{border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:4px;align-content:start}
+.anacards strong{font-size:14px}
+.anacards p{margin:0;font-size:13px;color:var(--muted);line-height:1.55;word-break:keep-all}
 #editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
 #toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--topB, 76px) + 8px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 #printBox{display:none}
@@ -261,6 +293,7 @@ button{font:inherit;color:inherit}
     <button class="btn" id="themeBtn" title="색 테마" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><path d="M7.5 11h.01M10 7.5h.01M14.5 7.5h.01" stroke-width="2.6"/></svg><span class="lbl">테마</span></button>
     <button class="btn" id="layoutBtn" title="가지 모양 · 정리" aria-haspopup="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lbl">모양</span></button>
     <span class="sep"></span>
+    <button class="btn" id="anaBtn" title="이 앱이 어떻게 돌아가는지 보기"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="5" rx="1.5"/><rect x="15" y="4" width="6" height="5" rx="1.5"/><rect x="9" y="15" width="6" height="5" rx="1.5"/><path d="M6 9v2.5h12V9M12 11.5V15"/></svg><span class="lbl">분석</span></button>
     <button class="btn primary" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 19h14"/></svg><span class="lbl">내보내기</span></button>
     <button class="btn" id="menuBtn" aria-label="메뉴" aria-haspopup="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
   </div>
@@ -437,6 +470,73 @@ button{font:inherit;color:inherit}
     </section>
     <div class="poplabel" id="myMapsHead" hidden>내 맵 · 자동 저장돼요 <span id="myMapsCount"></span></div>
     <div class="mymaps" id="myMaps" hidden></div>
+  </div>
+</div>
+
+<div id="anaWrap" hidden>
+  <div id="ana" role="dialog" aria-modal="true" aria-labelledby="anaTitle">
+    <div class="anahead">
+      <div><div class="aisub">분석</div><h2 id="anaTitle">생각가지는 이렇게 돌아가요</h2></div>
+      <button class="btn" id="anaClose" aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+
+    <section>
+      <h3>지금 이 맵</h3>
+      <div class="anastats" id="anaStats"></div>
+    </section>
+
+    <section>
+      <h3>전체 구조</h3>
+      <p class="aisub">입력이 맵 데이터(나무 구조)를 바꾸면, 자동 정리가 자리를 잡고 캔버스에 그립니다. 바뀐 내용은 바로 저장되고, 같은 그림이 이미지·PDF로 나갑니다.</p>
+      <div class="dgscroll"><svg class="dg" viewBox="0 0 760 330" role="img" aria-label="입력, 맵 데이터, 자동 정리, 캔버스 그리기, 저장, 출력의 연결 구조">
+        <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="dg-arrowhead"/></marker></defs>
+        <g class="dg-node"><rect x="10" y="30" width="150" height="150" rx="14"/><rect x="10" y="30" width="150" height="34" rx="14" class="dg-cap c1"/><rect x="10" y="50" width="150" height="14" class="dg-cap c1"/>
+          <text x="85" y="52" class="dg-h">입력</text><text x="24" y="90" class="dg-t">마우스 · 터치 · 끌기</text><text x="24" y="114" class="dg-t">키보드 단축키</text><text x="24" y="138" class="dg-t">AI로 만들기</text><text x="24" y="162" class="dg-t">예시 · 보관 파일</text></g>
+        <g class="dg-node"><rect x="205" y="30" width="160" height="150" rx="14"/><rect x="205" y="30" width="160" height="34" rx="14" class="dg-cap c2"/><rect x="205" y="50" width="160" height="14" class="dg-cap c2"/>
+          <text x="285" y="52" class="dg-h">맵 데이터 (나무)</text><text x="219" y="90" class="dg-t">가지마다 부모 · 글자</text><text x="219" y="114" class="dg-t">이모지 · 색 번호 · 접힘</text><text x="219" y="138" class="dg-t">모양 · 테마 · 글꼴</text><text x="219" y="162" class="dg-t">되돌리기 기록 120개</text></g>
+        <g class="dg-node"><rect x="410" y="30" width="150" height="150" rx="14"/><rect x="410" y="30" width="150" height="34" rx="14" class="dg-cap c3"/><rect x="410" y="50" width="150" height="14" class="dg-cap c3"/>
+          <text x="485" y="52" class="dg-h">자동 정리</text><text x="424" y="90" class="dg-t">가지 모양 5종</text><text x="424" y="114" class="dg-t">접기 · 단계 보기</text><text x="424" y="138" class="dg-t">주제끼리 겹침 피하기</text><text x="424" y="162" class="dg-t">0.3초 부드럽게 이동</text></g>
+        <g class="dg-node"><rect x="605" y="30" width="145" height="150" rx="14"/><rect x="605" y="30" width="145" height="34" rx="14" class="dg-cap c4"/><rect x="605" y="50" width="145" height="14" class="dg-cap c4"/>
+          <text x="677" y="52" class="dg-h">캔버스 그리기</text><text x="619" y="90" class="dg-t">곡선 가지 · 배지</text><text x="619" y="114" class="dg-t">테마 20종</text><text x="619" y="138" class="dg-t">글꼴 8종</text><text x="619" y="162" class="dg-t">글자색 자동 대비</text></g>
+        <path d="M160 105H199" class="dg-line" marker-end="url(#ah)"/><path d="M365 105H404" class="dg-line" marker-end="url(#ah)"/><path d="M560 105H599" class="dg-line" marker-end="url(#ah)"/>
+        <g class="dg-node"><rect x="150" y="230" width="270" height="88" rx="14"/><text x="166" y="256" class="dg-h l">자동 저장</text>
+          <text x="166" y="280" class="dg-t">내 맵 (브라우저 IndexedDB) · 0.7초 뒤</text><text x="166" y="302" class="dg-t">버전 기록 10분마다 · 파일(.json) 보관</text></g>
+        <g class="dg-node"><rect x="520" y="230" width="230" height="88" rx="14"/><text x="536" y="256" class="dg-h l">출력</text>
+          <text x="536" y="280" class="dg-t">화면 · PNG · PDF (A4 · A3)</text><text x="536" y="302" class="dg-t">섹션 2~3개씩 나눠 인쇄</text></g>
+        <path d="M285 180V224" class="dg-line" marker-end="url(#ah)"/><path d="M677 180V224" class="dg-line" marker-end="url(#ah)"/>
+        <path d="M150 274H30V186" class="dg-line dash" marker-end="url(#ah)"/><text x="40" y="226" class="dg-s">다시 열기 ·</text><text x="40" y="242" class="dg-s">버전 되돌리기</text>
+      </svg></div>
+    </section>
+
+    <section>
+      <h3>AI 흐름</h3>
+      <p class="aisub">AI는 그림을 그리지 않고, 정해진 모양의 JSON(가지 목록)만 돌려줍니다. 앱이 그 목록을 검사해 나무로 바꾸고 자동 정리로 배치합니다.</p>
+      <div class="dgscroll"><svg class="dg" viewBox="0 0 760 270" role="img" aria-label="주제와 단계 입력, 질문, 답, 맵 만들기, JSON 검사, 새 맵으로 이어지는 AI 흐름">
+        <g class="dg-node"><rect x="10" y="40" width="112" height="96" rx="12"/><text x="66" y="66" class="dg-h">주제 · 단계</text><text x="66" y="92" class="dg-t c">한 줄 입력</text><text x="66" y="114" class="dg-t c">1 · 2 · 3단계</text></g>
+        <g class="dg-node"><rect x="138" y="40" width="112" height="96" rx="12"/><text x="194" y="66" class="dg-h">질문 3개</text><text x="194" y="92" class="dg-t c">빠른 모델</text><text x="194" y="114" class="dg-t c">답 예시 함께</text></g>
+        <g class="dg-node"><rect x="266" y="40" width="112" height="96" rx="12"/><text x="322" y="66" class="dg-h">답 채우기</text><text x="322" y="92" class="dg-t c">직접 고르기</text><text x="322" y="114" class="dg-t c">AI가 대신 답</text></g>
+        <g class="dg-node hl"><rect x="394" y="40" width="112" height="96" rx="12"/><text x="450" y="66" class="dg-h">맵 만들기</text><text x="450" y="92" class="dg-t c">단계별 깊이 규칙</text><text x="450" y="114" class="dg-t c">짧은 글 · 이모지</text></g>
+        <g class="dg-node"><rect x="522" y="40" width="112" height="96" rx="12"/><text x="578" y="66" class="dg-h">JSON 검사</text><text x="578" y="92" class="dg-t c">글자 수 · 개수 제한</text><text x="578" y="114" class="dg-t c">최대 220가지</text></g>
+        <g class="dg-node"><rect x="650" y="40" width="100" height="96" rx="12"/><text x="700" y="66" class="dg-h">새 맵</text><text x="700" y="92" class="dg-t c">자동 정리</text><text x="700" y="114" class="dg-t c">내 맵에 저장</text></g>
+        <path d="M122 88H132" class="dg-line" marker-end="url(#ah)"/><path d="M250 88H260" class="dg-line" marker-end="url(#ah)"/><path d="M378 88H388" class="dg-line" marker-end="url(#ah)"/><path d="M506 88H516" class="dg-line" marker-end="url(#ah)"/><path d="M634 88H644" class="dg-line" marker-end="url(#ah)"/>
+        <path d="M66 40V22H450V34" class="dg-line dash" marker-end="url(#ah)"/><text x="258" y="16" class="dg-s c">'먼저 질문 받기'를 끄면 바로 만들기</text>
+        <g class="dg-node soft"><rect x="10" y="176" width="360" height="80" rx="12"/><text x="26" y="202" class="dg-h l">Claude 안에서 열 때</text><text x="26" y="226" class="dg-t">내 Claude 계정으로 바로 호출 (처음 한 번 허용)</text><text x="26" y="246" class="dg-t">사용량은 내 Claude 사용량에서 차감</text></g>
+        <g class="dg-node soft"><rect x="390" y="176" width="360" height="80" rx="12"/><text x="406" y="202" class="dg-h l">GitHub 버전으로 열 때</text><text x="406" y="226" class="dg-t">내 API 키 → Anthropic API (claude-sonnet-5-5)</text><text x="406" y="246" class="dg-t">키는 이 브라우저에만 저장</text></g>
+        <path d="M450 136V170" class="dg-line dash" marker-end="url(#ah)"/><path d="M450 152H190V170" class="dg-line dash" marker-end="url(#ah)"/><path d="M450 152H570V170" class="dg-line dash" marker-end="url(#ah)"/>
+      </svg></div>
+    </section>
+
+    <section>
+      <h3>핵심 원리</h3>
+      <div class="anacards">
+        <div><strong>나무 구조 하나로 전부</strong><p>모든 가지는 '부모 가지'만 기억해요. 그리기, 정리, 접기, 나눠서 출력이 모두 이 하나의 나무를 읽어서 만들어집니다.</p></div>
+        <div><strong>자리는 하위 가지 높이로</strong><p>가지마다 아래에 달린 가지들이 차지할 높이를 먼저 더하고, 그만큼 공간을 나눠 위아래로 배치해요. 그래서 깊은 가지도 겹치지 않습니다.</p></div>
+        <div><strong>가늘어지는 곡선 가지</strong><p>부모에서 자식까지 곡선을 26조각으로 나누고, 굵기를 점점 줄여 채워요. 가운데 주제에 가까울수록 굵게 보입니다.</p></div>
+        <div><strong>색은 번호로 기억</strong><p>가지 색은 실제 색이 아니라 '몇 번째 색'으로 저장돼요. 테마를 바꾸면 같은 번호의 테마 색으로 한꺼번에 바뀝니다.</p></div>
+        <div><strong>저장은 두 겹</strong><p>고칠 때마다 브라우저에 빠른 복사본을 두고, 0.7초 뒤 내 맵 보관함에 저장해요. 10분마다 버전 기록을 따로 남깁니다.</p></div>
+        <div><strong>나눠서 출력</strong><p>섹션 2~3개만 남긴 작은 맵을 따로 만들고, 한쪽으로 다시 정리해서 장마다 그려요. 폭이 줄어든 만큼 글씨가 커집니다.</p></div>
+      </div>
+    </section>
   </div>
 </div>
 
@@ -1208,6 +1308,7 @@ window.addEventListener('keydown', e => {
   }
   if (e.shiftKey && !mod && (e.key === '!' || e.code === 'Digit1')){ e.preventDefault(); fit(); return; }
   if (!$('startWrap').hidden){ if (e.key === 'Escape' && canResume) closeStart(); return; }
+  if (!$('anaWrap').hidden){ if (e.key === 'Escape') closeAnalysis(); return; }
   if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
   if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
   if (e.key === '?' ){ e.preventDefault(); openPop('keysPop', $('menuBtn'), true); return; }
@@ -2134,6 +2235,30 @@ function refreshSheet(){
 function openSheet(){ closePops(); if (editing) commitEdit(); $('sheetWrap').hidden = false; refreshSheet(); $('saveBtn').focus(); }
 function closeSheet(){ $('sheetWrap').hidden = true; }
 $('exportBtn').onclick = openSheet;
+
+/* ---------- 분석: how the app works + live numbers for the open map ---------- */
+function openAnalysis(){
+  closePops(); if (editing) commitEdit();
+  const all = Object.values(state.nodes);
+  const stats = [
+    [all.length - tops().length, '가지'],
+    [maxDepth(), '단계 깊이'],
+    [tops().length, '주제'],
+    [all.filter(n => n.collapsed).length, '접힌 가지'],
+    [(LAYOUTS.find(l => l.key === layoutMode()) || LAYOUTS[0]).name, '가지 모양'],
+    [themeDef().name, '색 테마'],
+    [fontDef().label.split(' · ')[0], '글꼴'],
+    [libOK ? (savedAt ? new Date(savedAt).toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'}) : '—') : '브라우저', libOK ? '마지막 저장' : '저장 위치'],
+    [undoStack.length, '되돌리기 가능']
+  ];
+  const box = $('anaStats'); box.innerHTML = '';
+  for (const [v, k] of stats){ const d = document.createElement('div'); d.className = 'anastat'; const b = document.createElement('b'); b.textContent = v; const s = document.createElement('span'); s.textContent = k; d.append(b, s); box.appendChild(d); }
+  $('anaWrap').hidden = false; $('anaClose').focus();
+}
+function closeAnalysis(){ $('anaWrap').hidden = true; }
+$('anaBtn').onclick = openAnalysis;
+$('anaClose').onclick = closeAnalysis;
+$('anaWrap').addEventListener('pointerdown', e => { if (e.target === $('anaWrap')) closeAnalysis(); });
 $('sheetClose').onclick = closeSheet;
 $('sheetWrap').addEventListener('pointerdown', e => { if (e.target === $('sheetWrap')) closeSheet(); });
 
