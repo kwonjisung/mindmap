@@ -121,6 +121,10 @@ button{font:inherit;color:inherit}
 .seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 #preview{width:100%;height:200px;border-radius:12px;background:var(--paper);display:grid;place-items:center;overflow:hidden;border:1px solid var(--line)}
 #preview canvas{max-width:100%;max-height:100%;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+#preview.multi{display:flex;flex-wrap:wrap;gap:8px;align-content:center;justify-content:center;padding:8px;height:auto;min-height:200px;max-height:300px;overflow:auto}
+.pvpage{display:grid;place-items:center;max-width:100%}
+#preview.multi .pvpage canvas{max-height:110px;max-width:150px}
+.pvmore{font-size:13px;color:var(--muted);align-self:center}
 #pvInfo{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
 .check{display:flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
 .check input{width:18px;height:18px;accent-color:var(--ink)}
@@ -168,7 +172,7 @@ button{font:inherit;color:inherit}
 .thumb canvas{max-width:100%;max-height:100%}
 #editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
 #toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 76px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
-#printImg{display:none}
+#printBox{display:none}
 #modHint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%);z-index:45;pointer-events:none;
   background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px 18px 14px;opacity:.86;
   backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);min-width:240px;max-width:calc(100% - 32px);animation:mhIn .14s ease-out}
@@ -187,8 +191,10 @@ button{font:inherit;color:inherit}
   #hint .kb{display:none}
 }
 @media print{
-  body>*:not(#printImg){display:none!important}
-  #printImg{display:block!important;max-width:100%;max-height:100vh;margin:auto}
+  body>*:not(#printBox){display:none!important}
+  #printBox{display:block!important}
+  #printBox img{display:block;max-width:100%;max-height:96vh;margin:0 auto;page-break-after:always;break-after:page}
+  #printBox img:last-child{page-break-after:auto;break-after:auto}
   html,body{overflow:visible;background:#fff}
 }
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
@@ -309,6 +315,10 @@ button{font:inherit;color:inherit}
     <div class="row" id="paperRow" hidden><span>용지 크기</span>
       <div class="seg" id="paperSeg"><button data-v="a4" aria-pressed="true">A4</button><button data-v="a3" aria-pressed="false">A3</button><button data-v="fit" aria-pressed="false">맵 크기에 맞춤</button></div>
     </div>
+    <div class="row" id="splitRow" hidden><span>나눠서 출력 · 섹션을 묶어 장마다 크게</span>
+      <div class="seg" id="splitSeg"><button data-v="0" aria-pressed="true">한 장에 전체</button><button data-v="2" aria-pressed="false">섹션 2개씩</button><button data-v="3" aria-pressed="false">섹션 3개씩</button></div>
+      <label class="check" hidden><input type="checkbox" id="withOverview" checked> 첫 장에 전체 지도 넣기</label>
+    </div>
     <div class="row" id="bgRow"><span>배경</span>
       <div class="seg" id="bgSeg"><button data-v="white" aria-pressed="true">테마 배경</button><button data-v="clear" aria-pressed="false">투명</button></div>
     </div>
@@ -367,7 +377,7 @@ button{font:inherit;color:inherit}
 <input id="editor" hidden aria-label="가지 글자">
 <div id="toast" role="status" hidden></div>
 <div id="modHint" aria-hidden="true" hidden><div class="mh-title" id="mhTitle"></div><dl id="mhList"></dl></div>
-<img id="printImg" alt="">
+<div id="printBox"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
@@ -1716,18 +1726,28 @@ $('fileIn').onchange = () => {
 };
 
 /* ---------- export ---------- */
-const exp = {fmt:'png', paper:'a4', bg:'white'};
+const exp = {fmt:'png', paper:'a4', bg:'white', split:0};
 function bindSeg(id, key){
   $(id).querySelectorAll('button').forEach(b => b.onclick = () => {
-    exp[key] = b.dataset.v; $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); refreshSheet();
+    exp[key] = key === 'split' ? Number(b.dataset.v) : b.dataset.v;
+    $(id).querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b)); refreshSheet();
   });
 }
-bindSeg('fmtSeg','fmt'); bindSeg('paperSeg','paper'); bindSeg('bgSeg','bg');
+bindSeg('fmtSeg','fmt'); bindSeg('paperSeg','paper'); bindSeg('bgSeg','bg'); bindSeg('splitSeg','split');
 $('withTitle').onchange = refreshSheet;
+$('withOverview').onchange = refreshSheet;
 
+function titleWidth(opts){
+  if (!opts.title) return 0;
+  mctx.font = fontStr(fontDef(), fontDef().w[0], Math.round(28*fontDef().scale));
+  let w = mctx.measureText(opts.titleText || state.title || '마인드맵').width + 112;
+  if (opts.pageNo){ mctx.font = fontStr(fontDef(), fontDef().w[2], 18); w += mctx.measureText(opts.pageNo).width + 40; }
+  return w;
+}
 function renderExport(scale, opts){
   const b = bounds(56), titleH = opts.title ? 84 : 0;
-  const W = Math.ceil(b.w*scale), H = Math.ceil((b.h + titleH)*scale);
+  const fullW = Math.max(b.w, titleWidth(opts)), padX = (fullW - b.w)/2;   // a long title widens the page; the map stays centered
+  const W = Math.ceil(fullW*scale), H = Math.ceil((b.h + titleH)*scale);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
   const et = boardTheme(true);
@@ -1735,10 +1755,11 @@ function renderExport(scale, opts){
   if (opts.title){
     x.setTransform(scale,0,0,scale,0,0);
     x.font = fontStr(fontDef(), fontDef().w[0], Math.round(28*fontDef().scale)); x.fillStyle = et.ink;
-    x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(state.title || '마인드맵', 56, 62);
-    x.globalAlpha = 0.18; x.fillRect(56, 76, b.w - 112, 1.5); x.globalAlpha = 1;
+    x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(opts.titleText || state.title || '마인드맵', 56, 62);
+    if (opts.pageNo){ x.textAlign = 'right'; x.font = fontStr(fontDef(), fontDef().w[2], 18); x.globalAlpha = 0.6; x.fillText(opts.pageNo, fullW - 56, 62); x.globalAlpha = 1; }
+    x.globalAlpha = 0.18; x.fillRect(56, 76, fullW - 112, 1.5); x.globalAlpha = 1;
   }
-  x.setTransform(scale,0,0,scale,-b.x0*scale, (titleH - b.y0)*scale);
+  x.setTransform(scale,0,0,scale,(padX - b.x0)*scale, (titleH - b.y0)*scale);
   const saveSel = sel; sel = null; drawScene(x, et, {selection:false}); sel = saveSel;
   return c;
 }
@@ -1748,17 +1769,72 @@ function exportScale(){
   const target = exp.paper === 'a3' ? 4200 : exp.paper === 'a4' ? 3300 : 3000;
   return Math.min(4, Math.max(1.2, target/long));
 }
+
+/* --- split printing: main branches ("sections") grouped 2 or 3 per page, so text prints large --- */
+function sectionGroups(per){
+  const out = [], mode = layoutMode();
+  for (const r of tops()){
+    const l1 = kids(r.id).slice();
+    if (mode === 'down') l1.sort((a,b) => a.x - b.x);
+    else if (mode === 'both') l1.sort((a,b) => (side(b) - side(a)) || (side(a) === 1 ? a.y - b.y : a.y - b.y));
+    else l1.sort((a,b) => a.y - b.y);
+    if (!l1.length){ out.push({rootId:r.id, ids:[]}); continue; }
+    for (let i = 0; i < l1.length; i += per) out.push({rootId:r.id, ids:l1.slice(i, i + per).map(k => k.id)});
+  }
+  return out;
+}
+function pageState(g){
+  const keep = new Set([g.rootId]);
+  g.ids.forEach(id => subtreeIds(id).forEach(i => keep.add(i)));
+  const s = JSON.parse(JSON.stringify(state));
+  for (const id of Object.keys(s.nodes)) if (!keep.has(id)) delete s.nodes[id];
+  s.root = g.rootId;
+  // a few sections read best stacked on one side: the page gets narrower, so everything prints larger
+  if (isH() && layoutMode() === 'both') s.layout = 'right';
+  return withState(s, () => {
+    const order = new Map(), sideOv = new Map(), half = Math.ceil(g.ids.length/2);
+    g.ids.forEach((id, i) => { order.set(id, i); sideOv.set(id, i < half ? 1 : -1); });
+    const T = layout(order, sideOv);
+    for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; }
+    return s;
+  });
+}
+// every page as {draw(scale)} so preview and output share one path
+function exportPageList(){
+  const per = exp.fmt === 'pdf' ? exp.split : 0;
+  const withTitle = $('withTitle').checked;
+  const pages = [];
+  const groups = per ? sectionGroups(per) : [];
+  const split = per && groups.length > 1;
+  if (!split || $('withOverview').checked){
+    pages.push({label:'전체', draw: sc => renderExport(sc, {title:withTitle, bg:true}), fitScale: () => exportScale()});
+  }
+  if (split){
+    groups.forEach((g, i) => {
+      const ps = pageState(g);
+      const names = g.ids.map(id => N(id).text).join(' · ');
+      const titleText = (state.title || '마인드맵') + (names ? '  —  ' + names : '');
+      const pageNo = `${i + 1} / ${groups.length}`;
+      pages.push({label: pageNo, draw: sc => withState(ps, () => renderExport(sc, {title:withTitle, bg:true, titleText, pageNo})),
+                  fitScale: () => withState(ps, () => exportScale())});
+    });
+  }
+  return pages;
+}
 function refreshSheet(){
-  $('paperRow').hidden = exp.fmt !== 'pdf';
-  $('bgRow').hidden = exp.fmt !== 'png';
-  const pv = renderExport(0.6, {title:$('withTitle').checked, bg: exp.fmt === 'pdf' || exp.bg === 'white'});
+  const pdf = exp.fmt === 'pdf';
+  $('paperRow').hidden = !pdf; $('splitRow').hidden = !pdf; $('bgRow').hidden = pdf;
+  $('withOverview').closest('label').hidden = !exp.split;
   const box = $('preview'); box.innerHTML = '';
-  if (exp.bg === 'clear' && exp.fmt === 'png') box.style.background = 'repeating-conic-gradient(var(--chip) 0 25%, var(--paper) 0 50%) 0 0/16px 16px'; else box.style.background = '';
-  box.appendChild(pv);
+  if (exp.bg === 'clear' && !pdf) box.style.background = 'repeating-conic-gradient(var(--chip) 0 25%, var(--paper) 0 50%) 0 0/16px 16px'; else box.style.background = '';
+  const pages = pdf ? exportPageList() : [{draw: sc => renderExport(sc, {title:$('withTitle').checked, bg: exp.bg === 'white'})}];
+  box.classList.toggle('multi', pages.length > 1);
+  pages.slice(0, 8).forEach(pg => { const f = document.createElement('div'); f.className = 'pvpage'; f.appendChild(pg.draw(pages.length > 1 ? 0.3 : 0.6)); box.appendChild(f); });
+  if (pages.length > 8){ const more = document.createElement('div'); more.className = 'pvmore'; more.textContent = '+' + (pages.length - 8); box.appendChild(more); }
   const s = exportScale(), b = bounds(56);
-  const info = exp.fmt === 'png'
+  const info = !pdf
     ? `${Math.ceil(b.w*s)} × ${Math.ceil((b.h + ($('withTitle').checked?84:0))*s)} px`
-    : (exp.paper === 'fit' ? '맵 크기에 맞춘 한 쪽' : `${exp.paper.toUpperCase()} 한 쪽 · 방향 자동`);
+    : (exp.paper === 'fit' ? `맵 크기에 맞춤 · ${pages.length}쪽` : `${exp.paper.toUpperCase()} ${pages.length}쪽 · 방향 자동`);
   $('pvInfo').textContent = info + ' · 가지 ' + (Object.keys(state.nodes).length) + '개';
 }
 function openSheet(){ closePops(); if (editing) commitEdit(); $('sheetWrap').hidden = false; refreshSheet(); $('saveBtn').focus(); }
@@ -1770,18 +1846,23 @@ $('sheetWrap').addEventListener('pointerdown', e => { if (e.target === $('sheetW
 function fileBase(){ return (state.title || '마인드맵').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,' ').trim().slice(0,60) || '마인드맵'; }
 const canvasBlob = c => new Promise(res => c.toBlob(res, 'image/png'));
 function buildPdf(){
-  const s = exportScale(), c = renderExport(s, {title:$('withTitle').checked, bg:true});
-  const { jsPDF } = window.jspdf;
-  const land = c.width >= c.height, m = 12;
-  let pdf;
-  if (exp.paper === 'fit'){
-    const mmPerPx = 25.4/96/s*1.0;
-    const pw = c.width*mmPerPx + m*2, ph = c.height*mmPerPx + m*2;
-    pdf = new jsPDF({orientation: pw >= ph ? 'landscape' : 'portrait', unit:'mm', format:[pw, ph]});
-  } else pdf = new jsPDF({orientation: land ? 'landscape' : 'portrait', unit:'mm', format: exp.paper});
-  const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
-  const r = Math.min((pw - m*2)/c.width, (ph - m*2)/c.height), w = c.width*r, h = c.height*r;
-  pdf.addImage(c.toDataURL('image/png'), 'PNG', (pw-w)/2, (ph-h)/2, w, h, undefined, 'FAST');
+  const { jsPDF } = window.jspdf, m = 12;
+  const MAX_MM_PER_UNIT = 0.42;   // caps enlargement: 16px branch text prints at most ~6.7mm tall
+  let pdf = null;
+  for (const pg of exportPageList()){
+    const s = pg.fitScale(), c = pg.draw(s), land = c.width >= c.height;
+    let fmt, orient = land ? 'landscape' : 'portrait';
+    if (exp.paper === 'fit'){
+      const mmPerPx = 25.4/96/s;
+      const w = c.width*mmPerPx + m*2, h = c.height*mmPerPx + m*2;
+      fmt = [w, h]; orient = w >= h ? 'landscape' : 'portrait';
+    } else fmt = exp.paper;
+    if (!pdf) pdf = new jsPDF({orientation: orient, unit:'mm', format: fmt});
+    else pdf.addPage(fmt, orient);
+    const pw = pdf.internal.pageSize.getWidth(), ph = pdf.internal.pageSize.getHeight();
+    const r = Math.min((pw - m*2)/c.width, (ph - m*2)/c.height, MAX_MM_PER_UNIT/s), w = c.width*r, h = c.height*r;
+    pdf.addImage(c.toDataURL('image/png'), 'PNG', (pw-w)/2, (ph-h)/2, w, h, undefined, 'FAST');
+  }
   pdf.setProperties({title: state.title || '마인드맵'});
   return pdf.output('blob');
 }
@@ -1798,9 +1879,10 @@ $('saveBtn').onclick = async () => {
   } finally { btn.disabled = false; }
 };
 $('printBtn').onclick = () => {
-  const c = renderExport(exportScale(), {title:$('withTitle').checked, bg:true});
-  $('printImg').src = c.toDataURL('image/png');
-  setTimeout(() => window.print(), 60);
+  const box = $('printBox'); box.innerHTML = '';
+  const pages = exp.fmt === 'pdf' ? exportPageList() : [{draw: sc => renderExport(sc, {title:$('withTitle').checked, bg:true}), fitScale: exportScale}];
+  for (const pg of pages){ const img = document.createElement('img'); img.alt = ''; img.src = pg.draw(pg.fitScale()).toDataURL('image/png'); box.appendChild(img); }
+  setTimeout(() => window.print(), 80);
 };
 
 let downloadsNS;
