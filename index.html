@@ -147,6 +147,16 @@ button{font:inherit;color:inherit}
 #editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
 #toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 76px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 #printImg{display:none}
+#modHint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%);z-index:45;pointer-events:none;
+  background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px 18px 14px;opacity:.86;
+  backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);min-width:240px;max-width:calc(100% - 32px);animation:mhIn .14s ease-out}
+@keyframes mhIn{from{opacity:0;transform:translate(-50%,6px)}to{opacity:.86;transform:translate(-50%,0)}}
+.mh-title{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
+#mhList{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14px;align-items:center}
+#mhList dt{white-space:nowrap;text-align:right}
+#mhList dd{margin:0}
+#mhList kbd{font-family:var(--f-ui);font-size:12px;background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:2px 7px;margin:0 1px}
+#mhList .dim{color:var(--muted)}
 @media (max-width:640px){
   .lbl{display:none}
   #title{font-size:18px}
@@ -309,6 +319,7 @@ button{font:inherit;color:inherit}
 
 <input id="editor" hidden aria-label="가지 글자">
 <div id="toast" role="status" hidden></div>
+<div id="modHint" aria-hidden="true" hidden><div class="mh-title" id="mhTitle"></div><dl id="mhList"></dl></div>
 <img id="printImg" alt="">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -1089,6 +1100,44 @@ window.addEventListener('keydown', e => {
     startEdit(sel, false, true);
   }
 });
+
+/* ---------- modifier cheat-sheet: hold Ctrl/⌘, Shift or Alt to see what comes next ---------- */
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+const MOD_SHEETS = {
+  ctrl: () => ({title: (IS_MAC ? '⌘' : 'Ctrl') + ' 와 함께', rows: [
+    ['Z','되돌리기'], ['Shift Z','다시 실행'], ['Y','다시 실행'],
+    ['+','확대'], ['−','축소'], ['0','100% 크기'], ['휠','확대 · 축소']]}),
+  shift: () => ({title: 'Shift 와 함께', rows: [
+    ['1','전체 보기'], [(IS_MAC ? '⌘' : 'Ctrl') + ' Z','다시 실행']]}),
+  alt: () => ({title: (IS_MAC ? 'Option' : 'Alt') + ' 와 함께', rows: layoutMode() === 'down'
+    ? [['← →','같은 단계 안에서 순서 바꾸기']]
+    : [['↑ ↓','같은 단계 안에서 순서 바꾸기']]})
+};
+let mhTimer = 0, mhKey = null;
+function modKind(e){ return (e.key === 'Control' || e.key === 'Meta') ? 'ctrl' : e.key === 'Shift' ? 'shift' : e.key === 'Alt' ? 'alt' : null; }
+function showModHint(kind){
+  const s = MOD_SHEETS[kind](), list = $('mhList'); list.innerHTML = '';
+  $('mhTitle').textContent = s.title;
+  for (const [keys, what] of s.rows){
+    const dt = document.createElement('dt');
+    keys.split(' ').forEach(k => { const kb = document.createElement('kbd'); kb.textContent = k; dt.appendChild(kb); });
+    const dd = document.createElement('dd'); dd.textContent = what;
+    list.append(dt, dd);
+  }
+  $('modHint').hidden = false;
+}
+function hideModHint(){ clearTimeout(mhTimer); mhKey = null; $('modHint').hidden = true; }
+window.addEventListener('keydown', e => {
+  const tag = (e.target.tagName || '').toLowerCase();
+  const kind = modKind(e);
+  if (!kind || tag === 'input' || tag === 'textarea' || !$('startWrap').hidden){ hideModHint(); return; }
+  if (e.repeat && mhKey === kind) return;
+  hideModHint(); mhKey = kind;
+  mhTimer = setTimeout(() => { if (mhKey === kind) showModHint(kind); }, 450);
+}, true);
+window.addEventListener('keyup', e => { if (modKind(e)) hideModHint(); }, true);
+window.addEventListener('blur', hideModHint);
+cv.addEventListener('pointerdown', hideModHint);
 
 /* ---------- keyboard navigation & folding ---------- */
 function navigate(key){
