@@ -150,7 +150,9 @@ button{font:inherit;color:inherit}
 #start{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);width:min(780px,100%);max-height:calc(100% - 16px);overflow:auto;padding:24px;display:grid;gap:16px}
 .startHead{display:flex;gap:14px;align-items:center}
 .startHead .mark{width:40px;height:40px;flex:none}
-.startHead h2{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0 0 2px;text-wrap:balance}
+.startHead h2{font-family:var(--f-display);font-weight:400;font-size:24px;line-height:1.3;margin:0 0 4px;text-wrap:balance;word-break:keep-all}
+.startHead p{word-break:keep-all}
+@media (max-width:640px){ .startHead h2{font-size:20px} .samples,.mymaps{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px} .card.sample{padding:10px} .card.sample span{font-size:12px} }
 .startMain{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .card{display:grid;gap:4px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px;cursor:pointer;min-width:0}
 .card:hover{border-color:var(--ink)}
@@ -160,6 +162,15 @@ button{font:inherit;color:inherit}
 .card.big{background:var(--chip);border-color:transparent;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}
 .card.big .ico{grid-row:span 2;width:40px;height:40px;border-radius:12px;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:20px}
 .card.big:hover{border-color:var(--ink)}
+.seg.sm{display:inline-flex;padding:2px;gap:2px;border-radius:10px;flex-wrap:nowrap}
+.seg.sm button{flex:none;min-width:0;height:28px;padding:0 10px;font-size:12px;border-radius:8px}
+.lvpick{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.lvpick .aisub{font-size:12px}
+.check.sm{font-size:13px;color:var(--muted)}
+.check.sm input{width:16px;height:16px}
+.blankthumb{display:grid;place-items:center}
+.blankthumb span{width:44px;height:44px;border-radius:50%;border:1.5px dashed #B8C0CC;color:#8A94A3;display:grid;place-items:center;font-size:24px;line-height:1;transition:transform .15s}
+.card.sample:hover .blankthumb span{border-color:#1B2230;color:#1B2230}
 .aicard{border:1.5px solid var(--ink);border-radius:18px;padding:16px;display:grid;gap:10px;background:var(--surface)}
 .aihead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .aihead strong{font-size:16px}
@@ -390,15 +401,22 @@ button{font:inherit;color:inherit}
   <div id="start" role="dialog" aria-modal="true" aria-labelledby="startTitle">
     <div class="startHead">
       <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 13 C17 13 18 6 23 6" stroke="#E2553F" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C17 13 18 20 23 20" stroke="#2C7BD6" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 7 3 7" stroke="#16956C" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 19 3 19" stroke="#C77A0A" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="13" r="5" fill="currentColor"/></svg>
-      <div><h2 id="startTitle">무엇으로 시작할까요?</h2><p class="note">빈 페이지에서 바로 그리거나, 예시를 골라 고쳐 쓰세요.</p></div>
+      <div><h2 id="startTitle">생각을 가지로 펼치면, 흩어진 아이디어 사이의 연결이 보입니다.</h2><p class="note">빈 페이지로 바로 그리거나, 예시나 AI로 시작해 보세요.</p></div>
     </div>
+    <div class="startMain">
+      <button class="card big" id="startResume" hidden><span class="ico">↩</span><strong>이어서 하기</strong><span id="resumeTitle"></span></button>
+    </div>
+    <div class="poplabel">새로 시작</div>
+    <div class="samples" id="samples"></div>
     <section class="aicard" id="aiCard" aria-labelledby="aiTitle">
       <div class="aihead"><span class="aibadge">AI</span><strong id="aiTitle">AI로 만들기</strong><span class="aisub">주제나 내용을 적으면 마인드맵을 그려 드려요</span></div>
       <textarea id="aiTopic" rows="2" maxlength="2000" placeholder="예: 초등학생 여름방학 계획 / 카페 창업 준비 / 이번 분기 마케팅 전략"></textarea>
-      <div class="seg" id="aiLevel" role="group" aria-label="얼마나 자세히"><button data-v="1" aria-pressed="true">1단계 · 심플</button><button data-v="2" aria-pressed="false">2단계 · 보통</button><button data-v="3" aria-pressed="false">3단계 · 심화</button></div>
-      <p class="aisub" id="aiLevelNote"></p>
       <div class="airow">
-        <label class="check"><input type="checkbox" id="aiAsk" checked> 만들기 전에 AI가 먼저 질문하기</label>
+        <div class="lvpick">
+          <div class="seg sm" id="aiLevel" role="group" aria-label="얼마나 자세히"><button data-v="1" aria-pressed="true">1 심플</button><button data-v="2" aria-pressed="false">2 보통</button><button data-v="3" aria-pressed="false">3 심화</button></div>
+          <span class="aisub" id="aiLevelNote"></span>
+        </div>
+        <label class="check sm"><input type="checkbox" id="aiAsk" checked> 먼저 질문 받기</label>
         <button class="btn primary" id="aiGo"><svg viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></svg>AI로 만들기</button>
       </div>
       <div id="aiKeyRow" class="aikey" hidden>
@@ -417,14 +435,8 @@ button{font:inherit;color:inherit}
       <div id="aiStatus" class="aistatus" hidden><span class="spin" aria-hidden="true"></span><span id="aiStatusText">생각하는 중…</span><button class="btn" id="aiStop">멈추기</button></div>
       <p id="aiError" class="aierr" role="alert" hidden></p>
     </section>
-    <div class="startMain">
-      <button class="card big" id="startBlank"><span class="ico">＋</span><strong>빈 페이지</strong><span>가운데 주제 하나로 시작해요</span></button>
-      <button class="card big" id="startResume" hidden><span class="ico">↩</span><strong>이어서 하기</strong><span id="resumeTitle"></span></button>
-    </div>
     <div class="poplabel" id="myMapsHead" hidden>내 맵 · 자동 저장돼요 <span id="myMapsCount"></span></div>
     <div class="mymaps" id="myMaps" hidden></div>
-    <div class="poplabel">예시로 시작</div>
-    <div class="samples" id="samples"></div>
   </div>
 </div>
 
@@ -1580,6 +1592,10 @@ function sampleThumb(def){
 }
 function renderSamples(){
   const box = $('samples'); box.innerHTML = '';
+  const blank = document.createElement('button'); blank.className = 'card sample'; blank.id = 'startBlank';
+  blank.innerHTML = '<div class="thumb blankthumb"><span aria-hidden="true">＋</span></div><strong>빈 페이지</strong><span>가운데 주제 하나로 직접 그려요</span>';
+  blank.onclick = startBlankMap;
+  box.appendChild(blank);
   SAMPLES.forEach(def => {
     const b = document.createElement('button'); b.className = 'card sample';
     const fr = document.createElement('div'); fr.className = 'thumb'; fr.appendChild(sampleThumb(def));
@@ -1590,8 +1606,19 @@ function renderSamples(){
     box.appendChild(b);
   });
 }
+// one short insight about why mind maps work, a different one each time the start screen opens
+const INSIGHTS = [
+  '생각을 가지로 펼치면, 흩어진 아이디어 사이의 연결이 보입니다.',
+  '한 장에 전체를 그려 두면, 무엇이 빠졌는지가 먼저 눈에 들어옵니다.',
+  '문장 대신 핵심 단어만 적으면, 생각의 속도를 따라잡을 수 있습니다.',
+  '가운데서 바깥으로 — 큰 그림을 먼저 잡고 세부로 내려갑니다.',
+  '색과 이모지로 묶어 두면, 다시 볼 때 훨씬 빨리 떠오릅니다.',
+  '순서에 얽매이지 말고 떠오르는 대로 적으세요. 정리는 나중에 해도 됩니다.'
+];
+let insightIdx = Math.floor(Math.random() * INSIGHTS.length);
 function openStart(){
   if (editing) commitEdit(); closeSheet();
+  insightIdx = (insightIdx + 1) % INSIGHTS.length; $('startTitle').textContent = INSIGHTS[insightIdx];
   $('startResume').hidden = !canResume;
   $('resumeTitle').textContent = (state.title || '제목 없는 마인드맵') + ' · 가지 ' + Object.keys(state.nodes).length + '개';
   $('startWrap').hidden = false; renderSamples(); renderMyMaps();
@@ -1610,7 +1637,7 @@ function chooseMap(s){
   ensureFont(fontDef()).then(() => refont());
   if (prevTitle && libOK) toast(`'${prevTitle}'은(는) 내 맵에 저장돼 있어요`);
 }
-$('startBlank').onclick = () => { chooseMap(blankMap()); sel = 'n0'; syncUI(); startEdit('n0', true); };
+function startBlankMap(){ chooseMap(blankMap()); sel = 'n0'; syncUI(); startEdit('n0', true); }
 $('startResume').onclick = closeStart;
 
 /* ---------- map library: IndexedDB, autosave, versions ---------- */
@@ -1772,11 +1799,11 @@ $('snapNowBtn').onclick = async () => { await saveNow(true); await takeSnapshot(
 
 /* ---------- AI: topic → (optional questions) → mind map ---------- */
 const AI_LEVELS = {
-  1: {note:'가운데 주제와 주요 가지 4~6개, 그 아래 한 단계까지. 빠르게 훑어볼 때 좋아요.',
+  1: {note:'주요 가지 4~6개, 2단계 깊이',
       rule:'가운데 주제 아래 주요 가지 4~6개, 각 주요 가지 아래 하위 가지 2~3개. 깊이는 정확히 2단계.'},
-  2: {note:'주요 가지 5~7개, 세 단계 깊이. 계획을 세울 때 알맞아요.',
+  2: {note:'주요 가지 5~7개, 3단계 깊이',
       rule:'가운데 주제 아래 주요 가지 5~7개, 각각 하위 가지 3~4개, 하위 가지 대부분에 그 아래 가지 1~3개. 깊이 3단계.'},
-  3: {note:'주요 가지 6~8개, 네 단계 깊이에 구체적인 예시와 할 일까지 담아요.',
+  3: {note:'주요 가지 6~8개, 4단계 깊이 · 예시와 할 일까지',
       rule:'가운데 주제 아래 주요 가지 6~8개, 각각 하위 가지 3~5개, 그 아래 2~4개, 필요한 곳은 한 단계 더(최대 4단계). 마지막 단계에는 구체적인 예시, 할 일, 기준, 수치를 넣어.'}
 };
 let aiLevel = 1, aiCtl = null, aiQuestions = [];
