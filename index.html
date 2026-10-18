@@ -56,6 +56,21 @@ button{font:inherit;color:inherit}
 #hint kbd{font-family:var(--f-ui);font-size:11px;background:var(--chip);border:1px solid var(--line);border-radius:5px;padding:1px 5px;margin:0 2px}
 
 #zoom{right:max(16px, env(safe-area-inset-right, 0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+#levels{left:max(16px, env(safe-area-inset-left, 0px));bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+.lvlabel{font-size:12px;color:var(--muted);padding:0 4px 0 8px}
+.lvchips{display:flex;gap:2px}
+.lvchip{min-width:32px;height:30px;border:0;border-radius:8px;background:transparent;color:var(--muted);font:inherit;font-size:13px;font-weight:600;cursor:pointer;font-variant-numeric:tabular-nums;padding:0 6px}
+.lvchip:hover{background:var(--chip);color:var(--ink)}
+.lvchip[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.lvchip:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+@media (max-width:1100px){ #levels{top:calc(var(--topB, 76px) + 8px);bottom:auto} #toast{top:calc(var(--topB, 76px) + 60px)} }
+@media (max-width:640px){
+  .lvlabel{display:none}
+  #top{flex-wrap:wrap;row-gap:2px}
+  #top .brand{flex:1 1 100%}
+  #top .tools{flex:1 1 100%;justify-content:space-between}
+  #top .sep{display:none}
+}
 #zoomPct{font-size:12px;width:46px;text-align:center;font-variant-numeric:tabular-nums;color:var(--muted)}
 
 .pop{position:fixed;z-index:20;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px}
@@ -191,7 +206,7 @@ button{font:inherit;color:inherit}
 .thumb{aspect-ratio:16/10;max-width:100%;background:#FFFFFF;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin-bottom:6px;padding:6px}
 .thumb canvas{max-width:100%;max-height:100%}
 #editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
-#toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 76px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+#toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(var(--topB, 76px) + 8px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 #printBox{display:none}
 #modHint{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 80px);transform:translateX(-50%);z-index:45;pointer-events:none;
   background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:12px 18px 14px;opacity:.86;
@@ -253,6 +268,13 @@ button{font:inherit;color:inherit}
     <span class="sep"></span>
     <button class="btn danger" id="delBtn" title="가지 지우기 (Delete)" aria-label="지우기"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3m-7 0 1 13h8l1-13"/></svg></button>
   </div>
+</div>
+
+<div id="levels" class="island" role="group" aria-label="전체 단계 접기 펼치기" hidden>
+  <span class="lvlabel">단계</span>
+  <button class="btn" id="lvDown" title="한 단계 접기 (Alt + −)" aria-label="한 단계 접기"><svg viewBox="0 0 24 24"><path d="M6 12h12"/></svg></button>
+  <div id="levelChips" class="lvchips"></div>
+  <button class="btn" id="lvUp" title="한 단계 펼치기 (Alt + +)" aria-label="한 단계 펼치기"><svg viewBox="0 0 24 24"><path d="M6 12h12M12 6v12"/></svg></button>
 </div>
 
 <div id="zoom" class="island" aria-label="확대 축소">
@@ -326,6 +348,8 @@ button{font:inherit;color:inherit}
     <dt><kbd>Delete</kbd></dt><dd>가지 지우기</dd>
     <dt><kbd>-</kbd> <kbd>+</kbd></dt><dd>하위 가지 접기 · 펼치기</dd>
     <dt><kbd>.</kbd></dt><dd>접기 · 펼치기 전환</dd>
+    <dt><kbd>Alt</kbd>+<kbd>−</kbd> <kbd>+</kbd></dt><dd>전체 맵을 한 단계씩 접기 · 펼치기</dd>
+    <dt><kbd>Alt</kbd>+<kbd>1</kbd>~<kbd>9</kbd></dt><dd>그 단계까지만 보기 (<kbd>Alt</kbd>+<kbd>0</kbd> 전체)</dd>
     <dt><kbd>Ctrl</kbd>+<kbd>+</kbd> <kbd>−</kbd></dt><dd>확대 · 축소</dd>
     <dt><kbd>Ctrl</kbd>+<kbd>0</kbd></dt><dd>100% 크기</dd>
     <dt><kbd>Shift</kbd>+<kbd>1</kbd></dt><dd>전체 보기</dd>
@@ -982,7 +1006,7 @@ function bounds(pad=0){
 }
 function fit(){
   const b = bounds(40), W = cv.clientWidth, H = cv.clientHeight;
-  const top = 76, bottom = 76, availH = Math.max(100, H - top - bottom);
+  const top = topBarBottom() + 12 + (W <= 1100 && !$('levels').hidden ? 52 : 0), bottom = 76, availH = Math.max(100, H - top - bottom);
   const k = Math.min(W / b.w, availH / b.h, 1.4);
   view.k = Math.max(0.15, k);
   view.x = W/2 - (b.x0 + b.w/2)*view.k;
@@ -993,6 +1017,9 @@ function zoomAt(f, sx, sy){
   const k = Math.min(3, Math.max(0.15, view.k*f)); const r = k / view.k;
   view.x = sx - (sx - view.x)*r; view.y = sy - (sy - view.y)*r; view.k = k; redraw();
 }
+// bottom edge of the toolbar (it wraps to two rows on phones); toasts and the level bar sit below it
+function topBarBottom(){ const r = $('top').getBoundingClientRect(); return Math.round(r.bottom); }
+new ResizeObserver(() => document.documentElement.style.setProperty('--topB', topBarBottom() + 'px')).observe($('top'));
 function zoomTo(k){ zoomAt(k / view.k, cv.clientWidth/2, cv.clientHeight/2); }
 function ensureVisible(id){
   const g = geom(N(id)), W = cv.clientWidth, H = cv.clientHeight;
@@ -1180,6 +1207,13 @@ window.addEventListener('keydown', e => {
     else navigate(e.key);
     return;
   }
+  // whole-map levels: Alt + − / + one level, Alt + 1…9 show down to that level, Alt + 0 everything
+  if (e.altKey && !mod){
+    if (e.code === 'Minus' || e.key === '-' || e.key === '–'){ e.preventDefault(); showLevel(visibleDepth() - 1); return; }
+    if (e.code === 'Equal' || e.key === '=' || e.key === '+'){ e.preventDefault(); showLevel(visibleDepth() + 1); return; }
+    const m = /^Digit([0-9])$/.exec(e.code || '');
+    if (m){ e.preventDefault(); showLevel(m[1] === '0' ? maxDepth() : Number(m[1])); return; }
+  }
   if (!sel) return;
   if (e.key === 'Tab' || e.key === 'Insert'){ e.preventDefault(); addChild(sel); }
   else if (e.key === 'Enter'){ e.preventDefault(); addSibling(sel); }
@@ -1203,9 +1237,9 @@ const MOD_SHEETS = {
     ['+','확대'], ['−','축소'], ['0','100% 크기'], ['휠','확대 · 축소']]}),
   shift: () => ({title: 'Shift 와 함께', rows: [
     ['1','전체 보기'], [(IS_MAC ? '⌘' : 'Ctrl') + ' Z','다시 실행']]}),
-  alt: () => ({title: (IS_MAC ? 'Option' : 'Alt') + ' 와 함께', rows: layoutMode() === 'down'
-    ? [['← →','같은 단계 안에서 순서 바꾸기']]
-    : [['↑ ↓','같은 단계 안에서 순서 바꾸기']]})
+  alt: () => ({title: (IS_MAC ? 'Option' : 'Alt') + ' 와 함께', rows: [
+    layoutMode() === 'down' ? ['← →','같은 단계 안에서 순서 바꾸기'] : ['↑ ↓','같은 단계 안에서 순서 바꾸기'],
+    ['−','전체 맵 한 단계 접기'], ['+','전체 맵 한 단계 펼치기'], ['1 2 3','그 단계까지만 보기'], ['0','모든 단계 펼치기']]})
 };
 let mhTimer = 0, mhKey = null;
 function modKind(e){ return (e.key === 'Control' || e.key === 'Meta') ? 'ctrl' : e.key === 'Shift' ? 'shift' : e.key === 'Alt' ? 'alt' : null; }
@@ -1328,6 +1362,39 @@ function toggleCollapse(id, val){
     if (n.collapsed && sel && sel !== id && subtreeIds(id).includes(sel)) sel = id;
   });
 }
+/* whole-map level folding: show branches down to level d (1 = main branches only) */
+function maxDepth(){ let m = 0; for (const n of Object.values(state.nodes)) m = Math.max(m, depth(n)); return m; }
+function visibleDepth(){ let m = 0; for (const n of visibleNodes()) m = Math.max(m, depth(n)); return m; }
+function showLevel(d){
+  const max = maxDepth(); if (!max) return;
+  d = Math.max(1, Math.min(max, d));
+  mutate(() => {
+    for (const n of Object.values(state.nodes)){
+      if (!n.parent) { n.collapsed = false; continue; }
+      n.collapsed = kids(n.id).length > 0 && depth(n) >= d;
+    }
+    if (sel && N(sel) && isHidden(N(sel))){ let p = N(sel); while (isHidden(p)) p = N(p.parent); sel = p.id; }
+  });
+  syncLevels();
+  setTimeout(fit, matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 320);
+  toast(d >= max ? '모든 단계를 펼쳤어요' : `${d}단계까지만 보여요`);
+}
+function syncLevels(){
+  const box = $('levelChips'); if (!box) return;
+  const max = maxDepth(), cur = visibleDepth();
+  $('levels').hidden = max < 2;
+  box.innerHTML = '';
+  for (let d = 1; d <= max; d++){
+    const b = document.createElement('button'); b.className = 'lvchip'; b.textContent = d === max ? '전체' : String(d);
+    b.title = d === max ? '모든 단계 펼치기' : `${d}단계까지 보기`;
+    b.setAttribute('aria-pressed', d === cur); b.onclick = () => showLevel(d);
+    box.appendChild(b);
+  }
+  $('lvDown').disabled = cur <= 1; $('lvUp').disabled = cur >= max;
+}
+$('lvDown').onclick = () => showLevel(visibleDepth() - 1);
+$('lvUp').onclick = () => showLevel(visibleDepth() + 1);
+
 function setAllCollapsed(mode){
   mutate(() => {
     for (const n of Object.values(state.nodes)){
@@ -1343,6 +1410,7 @@ function setAllCollapsed(mode){
 function syncUI(){
   $('undoBtn').disabled = !undoStack.length; $('redoBtn').disabled = !redoStack.length;
   $('hint').hidden = !!sel; $('selTools').hidden = !sel;
+  syncLevels();
   if (sel && N(sel)){
     const n = N(sel);
     $('delBtn').disabled = !n.parent;
