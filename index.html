@@ -74,6 +74,8 @@ button{font:inherit;color:inherit}
 .sw.none{background:var(--chip);display:grid;place-items:center;font-size:11px;color:var(--muted)}
 .poplabel{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
 #menuPop{width:240px;padding:6px}
+#menuPop .pill{margin-left:auto;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;background:var(--chip);color:var(--muted)}
+#autoBtn[aria-pressed="true"] .pill{background:var(--ink);color:var(--surface)}
 #fontPop{width:min(280px, calc(100vw - 32px));padding:8px}
 #fontPop .poplabel{padding:4px 8px 0}
 .fontlist{display:grid;gap:2px}
@@ -83,6 +85,26 @@ button{font:inherit;color:inherit}
 .fontopt .fs{font-size:19px;line-height:1.3}
 .fontopt small{font-family:var(--f-ui);font-size:11px;color:var(--muted);white-space:nowrap}
 #keysPop{width:min(330px, calc(100vw - 32px))}
+#shapePop{width:min(300px, calc(100vw - 32px))}
+.shapelist{display:grid;gap:4px}
+.shapeopt{display:grid;grid-template-columns:52px 1fr;gap:2px 12px;align-items:center;border:0;background:transparent;border-radius:12px;padding:8px;cursor:pointer;text-align:left;color:var(--ink)}
+.shapeopt:hover{background:var(--chip)}
+.shapeopt[aria-pressed="true"]{background:var(--chip);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.shapeopt svg{grid-row:span 2;width:52px;height:36px;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.shapeopt strong{font-size:14px;font-weight:600}
+.shapeopt span{font-size:12px;color:var(--muted)}
+#themePop{width:min(460px, calc(100vw - 32px));max-height:min(560px, calc(100vh - 120px));overflow:auto}
+.themelist{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.themeopt{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:6px 6px 8px;cursor:pointer;text-align:left;display:grid;gap:6px;color:var(--ink);position:relative}
+.themeopt:hover{border-color:var(--ink)}
+.themeopt[aria-pressed="true"]{box-shadow:0 0 0 2px var(--ink);border-color:transparent}
+.themeopt:focus-visible,.shapeopt:focus-visible,.fontopt:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.tprev{height:64px;border-radius:9px;position:relative;overflow:hidden;border:1px solid rgba(127,127,127,.18)}
+.tprev .r{position:absolute;left:10px;top:24px;width:34px;height:16px;border-radius:8px}
+.tprev .b{position:absolute;left:56px;height:9px;border-radius:5px}
+.tname{font-size:13px;font-weight:600;padding:0 4px;display:flex;align-items:center;gap:6px}
+.rec{font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;background:var(--ink);color:var(--surface)}
+.tgroup{grid-column:1/-1;font-size:12px;color:var(--muted);margin:6px 2px 0}
 .keys{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin:0;font-size:13px;align-items:center}
 .keys dt{white-space:nowrap}
 .keys dd{margin:0;color:var(--muted)}
@@ -151,7 +173,8 @@ button{font:inherit;color:inherit}
     <button class="btn" id="undoBtn" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
     <button class="btn" id="redoBtn" title="다시 실행 (Ctrl+Shift+Z)" aria-label="다시 실행"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
     <button class="btn" id="fontBtn" title="글꼴 바꾸기" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M4 19 9.5 5h1L16 19M6.3 14h7.4"/><path d="M17 11h3m-1.5-1.5v3" /></svg><span class="lbl">글꼴</span></button>
-    <button class="btn" id="layoutBtn" title="가지를 겹치지 않게 정리"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lbl">정리</span></button>
+    <button class="btn" id="themeBtn" title="색 테마" aria-haspopup="true"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.2-1-1.6-1-2.6 0-.9.7-1.5 1.6-1.5H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><path d="M7.5 11h.01M10 7.5h.01M14.5 7.5h.01" stroke-width="2.6"/></svg><span class="lbl">테마</span></button>
+    <button class="btn" id="layoutBtn" title="가지 모양 · 정리" aria-haspopup="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg><span class="lbl">모양</span></button>
     <span class="sep"></span>
     <button class="btn primary" id="exportBtn"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4"/><path d="M5 19h14"/></svg><span class="lbl">내보내기</span></button>
     <button class="btn" id="menuBtn" aria-label="메뉴" aria-haspopup="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="19" cy="12" r="1.2"/></svg></button>
@@ -197,6 +220,7 @@ button{font:inherit;color:inherit}
 
 <div id="menuPop" class="pop" hidden>
   <button class="btn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M12 11v6m-3-3h6"/></svg>새 맵 · 예시 열기</button>
+  <button class="btn" id="autoBtn" aria-pressed="true"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="2"/><path d="M7 12h3m0-6v12m0-12h4m-4 12h4m-4-6h4"/><circle cx="17" cy="6" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>자동 정리<span id="autoState" class="pill">켜짐</span></button>
   <button class="btn" id="expandAllBtn"><svg viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></svg>모두 펼치기</button>
   <button class="btn" id="firstOnlyBtn"><svg viewBox="0 0 24 24"><path d="M4 12h16"/></svg>첫 단계만 보기</button>
   <button class="btn" id="keysBtn"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg>단축키 보기 (?)</button>
@@ -210,12 +234,25 @@ button{font:inherit;color:inherit}
   <div id="fontList" class="fontlist"></div>
 </div>
 
+<div id="shapePop" class="pop" hidden>
+  <div class="poplabel">가지 뻗는 모양</div>
+  <div id="shapeList" class="shapelist"></div>
+  <button class="btn primary" id="arrangeNowBtn" style="width:100%;justify-content:center;margin-top:8px">지금 정리하기</button>
+</div>
+
+<div id="themePop" class="pop" hidden>
+  <div class="poplabel" id="themeHint">색 테마</div>
+  <div id="themeList" class="themelist"></div>
+</div>
+
 <div id="keysPop" class="pop" hidden>
   <div class="poplabel">키보드 단축키</div>
   <dl class="keys">
     <dt><kbd>←</kbd><kbd>→</kbd></dt><dd>부모 · 자식 가지로 이동</dd>
     <dt><kbd>↑</kbd><kbd>↓</kbd></dt><dd>위 · 아래 가지로 이동</dd>
-    <dt><kbd>Alt</kbd>+<kbd>↑</kbd><kbd>↓</kbd></dt><dd>같은 단계 안에서 순서 바꾸기</dd>
+    <dt><kbd>Alt</kbd>+<kbd>↑</kbd><kbd>↓</kbd></dt><dd>같은 단계 안에서 순서 바꾸기 ('아래로' 모양은 <kbd>Alt</kbd>+<kbd>←</kbd><kbd>→</kbd>)</dd>
+    <dt>빈 곳 더블클릭</dt><dd>새 주제(메인 가지) 만들기</dd>
+    <dt>끌어서 놓기</dt><dd>형제 사이에 놓으면 순서 바꾸기, 다른 가지 가운데에 놓으면 그 아래로</dd>
     <dt><kbd>Tab</kbd></dt><dd>하위 가지 추가</dd>
     <dt><kbd>Enter</kbd></dt><dd>같은 단계 가지 추가</dd>
     <dt><kbd>F2</kbd> <kbd>Space</kbd></dt><dd>글자 고치기 (Enter로 완료)</dd>
@@ -223,6 +260,9 @@ button{font:inherit;color:inherit}
     <dt><kbd>Delete</kbd></dt><dd>가지 지우기</dd>
     <dt><kbd>-</kbd> <kbd>+</kbd></dt><dd>하위 가지 접기 · 펼치기</dd>
     <dt><kbd>.</kbd></dt><dd>접기 · 펼치기 전환</dd>
+    <dt><kbd>Ctrl</kbd>+<kbd>+</kbd> <kbd>−</kbd></dt><dd>확대 · 축소</dd>
+    <dt><kbd>Ctrl</kbd>+<kbd>0</kbd></dt><dd>100% 크기</dd>
+    <dt><kbd>Shift</kbd>+<kbd>1</kbd></dt><dd>전체 보기</dd>
     <dt><kbd>Ctrl</kbd>+<kbd>Z</kbd></dt><dd>되돌리기 (<kbd>Shift</kbd> 함께: 다시 실행)</dd>
     <dt><kbd>Esc</kbd></dt><dd>선택 해제</dd>
   </dl>
@@ -238,7 +278,7 @@ button{font:inherit;color:inherit}
       <div class="seg" id="paperSeg"><button data-v="a4" aria-pressed="true">A4</button><button data-v="a3" aria-pressed="false">A3</button><button data-v="fit" aria-pressed="false">맵 크기에 맞춤</button></div>
     </div>
     <div class="row" id="bgRow"><span>배경</span>
-      <div class="seg" id="bgSeg"><button data-v="white" aria-pressed="true">흰색</button><button data-v="clear" aria-pressed="false">투명</button></div>
+      <div class="seg" id="bgSeg"><button data-v="white" aria-pressed="true">테마 배경</button><button data-v="clear" aria-pressed="false">투명</button></div>
     </div>
     <label class="check"><input type="checkbox" id="withTitle" checked> 제목 넣기</label>
     <div id="preview"></div>
@@ -277,6 +317,47 @@ button{font:inherit;color:inherit}
 const $ = id => document.getElementById(id);
 const PALETTE = ['#E2553F','#2C7BD6','#16956C','#8A55D4','#C77A0A','#D2407C','#11869A','#5E7F1E','#4B5563'];
 const EMOJI_FONTS = '"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji"';
+/* Color themes. pal[i] replaces PALETTE[i], so a branch keeps its slot when the theme changes.
+   tags: words that, when found in the map, move the theme to the front of the picker. */
+const THEMES = [
+  {key:'auto', name:'기본', note:'앱 밝기를 따라가요', tags:[]},
+  {key:'clean', name:'깔끔한 화이트', bg:'#FFFFFF', grid:'rgba(31,41,55,.10)', ink:'#1F2937', root:'#111827', pal:['#E2553F','#2C7BD6','#16956C','#8A55D4','#C77A0A','#D2407C','#11869A','#5E7F1E','#4B5563'], tags:['계획','할 일','일정','정리','목표','주간']},
+  {key:'midnight', name:'미드나잇', bg:'#0F1420', grid:'rgba(230,234,242,.08)', ink:'#E6EAF2', root:'#E6EAF2', pal:['#FF7A66','#5AA9FF','#3DD6A3','#B48CFF','#FFC24D','#FF6FAE','#3FD0E0','#A8D65A','#9AA4B2'], tags:['개발','코드','서버','AI','데이터','앱','시스템','기술']},
+  {key:'neon', name:'네온 아케이드', bg:'#0B0B16', grid:'rgba(255,255,255,.06)', ink:'#F4F4FF', root:'#FF3B8D', pal:['#FF3B8D','#00E5FF','#B6FF3B','#FFD23F','#A779FF','#FF7A35','#2EFFC7','#FF5CE1','#C9C9E8'], tags:['게임','캐릭터','스테이지','레이싱','로봇','액션','플레이','레벨','🎮','🕹️']},
+  {key:'pastel', name:'파스텔', bg:'#FBF8FF', grid:'rgba(43,35,64,.08)', ink:'#2B2340', root:'#2B2340', pal:['#FFB3A7','#A7C7FF','#A8E6CF','#D4B8FF','#FFE09A','#FFB8D9','#9FE3EC','#CFE8A0','#D9D6E3'], tags:['아이','일기','감정','취미','생일','귀여운','🐰']},
+  {key:'ocean', name:'바다', bg:'#F1F8FB', grid:'rgba(12,59,94,.08)', ink:'#0C3B5E', root:'#0C3B5E', pal:['#0E7FB8','#14A3A3','#FF7F66','#2F5DA8','#3CB4D6','#E8A33D','#1C6E8C','#62B88F','#7891A6'], tags:['여행','바다','휴가','섬','해변','수영','제주','펜션','🌊','🧳']},
+  {key:'forest', name:'숲', bg:'#F3F7F1', grid:'rgba(34,58,40,.08)', ink:'#22392A', root:'#2E4A35', pal:['#3E7D4F','#8A6A3B','#5E9E6E','#B5763A','#2F6A5B','#7A8F2E','#4F7F8A','#9C5B4A','#6E7B70'], tags:['자연','캠핑','산','정원','식물','환경','등산','🌳','🌱']},
+  {key:'sunset', name:'노을', bg:'#FFF5F0', grid:'rgba(80,30,40,.08)', ink:'#4A1F2B', root:'#4A1F2B', pal:['#F2643D','#E23E6B','#9A4FD1','#F29A2E','#C2407F','#6C5BD4','#E8743B','#B33A5A','#8B6B7A'], tags:['여행','저녁','감성','사진','데이트','노을']},
+  {key:'mono', name:'흑백 인쇄용', bg:'#FFFFFF', grid:'rgba(0,0,0,.08)', ink:'#111111', root:'#111111', pal:['#222222','#444444','#5A5A5A','#333333','#666666','#2B2B2B','#4F4F4F','#3A3A3A','#777777'], tags:['인쇄','출력','문서','보고서','제출']},
+  {key:'blueprint', name:'청사진', bg:'#0F3B6E', grid:'rgba(234,242,255,.12)', ink:'#EAF2FF', root:'#EAF2FF', pal:['#FFFFFF','#BFE0FF','#9FD3FF','#D6E8FF','#FFE59A','#B9F2E6','#CFD8FF','#E6F7FF','#A9C2E0'], tags:['설계','구조','개발','시스템','아키텍처','엔지니어','도면','흐름']},
+  {key:'chalk', name:'칠판', bg:'#24342C', grid:'rgba(241,241,232,.07)', ink:'#F1F1E8', root:'#F1F1E8', pal:['#F7D58A','#9FD8F0','#F5A3A3','#B7E4A8','#D8C4F2','#F6B983','#A8E0D2','#F1F1E8','#C9CFC4'], tags:['공부','수업','학교','시험','수학','강의','숙제','과학','배우기']},
+  {key:'notebook', name:'공책', bg:'#FFFEF7', grid:'rgba(36,57,140,.09)', ink:'#24398C', root:'#24398C', pal:['#24398C','#C0392B','#1E8449','#7D3C98','#B9770E','#2E86C1','#AF601A','#566573','#5D6D7E'], tags:['책','독서','노트','요약','글','작가','필기','📚','등장인물']},
+  {key:'business', name:'비즈니스', bg:'#F5F7FA', grid:'rgba(25,42,70,.08)', ink:'#192A46', root:'#192A46', pal:['#1F4E8C','#2A7F9E','#4C6A92','#2E8B6E','#B7791F','#6B4FA0','#3A5A78','#8C3B3B','#6B7A8F'], tags:['회의','보고서','업무','프로젝트','마케팅','예산','매출','회사','전략','고객','💼']},
+  {key:'retro', name:'레트로', bg:'#F4ECDF', grid:'rgba(60,40,20,.08)', ink:'#3B2A1A', root:'#3B2A1A', pal:['#D9822B','#2F7F7A','#C0482E','#E0B23A','#6D4C8F','#8A5A2B','#3F6E9C','#A33B5B','#7D705F'], tags:['음악','영화','추억','오락실','레트로','옛날']},
+  {key:'candy', name:'캔디', bg:'#FFFFFF', grid:'rgba(0,0,0,.06)', ink:'#2A2A3A', root:'#FF4D8D', pal:['#FF4D8D','#3D8BFF','#2BC48A','#FFB000','#9B5CFF','#FF7A1A','#00B8D9','#7ACC29','#A0A3B1'], tags:['아이','어린이','놀이','장난감','생일','학습','유치원','파티']},
+  {key:'coralmint', name:'코랄 & 민트', bg:'#F7FCFA', grid:'rgba(20,70,60,.08)', ink:'#1E3D37', root:'#1E3D37', pal:['#FF6F61','#2EC4B6','#FF9F80','#3BA99C','#F2A65A','#5CC8D7','#E85D75','#7BC47F','#8FA8A3'], tags:['건강','운동','다이어트','식단','요가','걷기','🏃']},
+  {key:'graphite', name:'그래파이트', bg:'#1E1F24', grid:'rgba(255,255,255,.06)', ink:'#E4E5EA', root:'#E4E5EA', pal:['#E07A5F','#81A4CD','#8FC1A9','#C3A6D8','#E9C46A','#E59AB8','#7FC8C2','#B5C98A','#9A9DA8'], tags:['집중','생각','작업','글쓰기','코드']},
+  {key:'violet', name:'보랏빛 밤', bg:'#1D1A2E', grid:'rgba(255,255,255,.06)', ink:'#EDE8FF', root:'#C9A7FF', pal:['#FF79C6','#8BE9FD','#50FA7B','#F1FA8C','#BD93F9','#FFB86C','#7AF0D0','#FF92DF','#A9A6C2'], tags:['게임','판타지','마법','음악','이야기','소설','스토리','🦸']},
+  {key:'rainbow', name:'무지개', bg:'#FFFFFF', grid:'rgba(0,0,0,.06)', ink:'#1F1F1F', root:'#1F1F1F', pal:['#E63946','#F77F00','#FCBF49','#2A9D8F','#118AB2','#6A4C93','#EF476F','#06D6A0','#8D99AE'], tags:['아이디어','브레인스토밍','다양','창의','발상','🧩','💡']},
+  {key:'spring', name:'봄꽃', bg:'#FFF6F9', grid:'rgba(90,30,60,.07)', ink:'#4A2236', root:'#4A2236', pal:['#F27BA3','#7CC47F','#F5A3C7','#B48EDB','#F7C35F','#E86A92','#6FBFA8','#A7C957','#B79AA8'], tags:['봄','결혼','생일','파티','데이트','꽃','🌸']},
+  {key:'coffee', name:'커피', bg:'#F7F1EA', grid:'rgba(60,40,25,.08)', ink:'#3A2A1F', root:'#3A2A1F', pal:['#8B5A3C','#C08552','#5E7D5B','#A0522D','#D4A373','#7B4B3A','#4F6D7A','#B5838D','#8C7B6E'], tags:['카페','커피','창업','가게','메뉴','음식','빵','☕']}
+];
+let curPal = PALETTE;
+const themeDef = () => THEMES.find(t => t.key === state.theme) || THEMES[0];
+function textOn(hex){
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return '#FFFFFF';
+  const v = parseInt(m[1], 16), r = v >> 16, g = (v >> 8) & 255, b = v & 255;
+  return (0.2126*r + 0.7152*g + 0.0722*b) > 165 ? '#16181F' : '#FFFFFF';
+}
+function boardTheme(forExport){
+  const t = themeDef();
+  if (t.key === 'auto'){
+    if (forExport) return {bg:'#FFFFFF', ink:'#1B2230', root:'#1B2230', grid:null, sel:null, pal:PALETTE};
+    return {bg:null, ink:theme.ink, root:theme.ink, grid:theme.grid, sel:theme.sel, pal:PALETTE};
+  }
+  return {bg:t.bg, ink:t.ink, root:t.root, grid:forExport ? null : t.grid, sel:theme.sel, pal:t.pal};
+}
+function themed(hex){ const i = PALETTE.indexOf(hex); return i >= 0 ? curPal[i] : hex; }
 const STORE = 'saenggakgaji.v1';
 const EMOJIS = {
   '표정':['😀','😄','😍','🤩','😎','🤔','😴','😱','🥳','😭','😡','🤗','😇','🤓','😅','🙌','👍','👏'],
@@ -358,8 +439,8 @@ function side(n){
   return s || (p.parent ? side(p) : 1);
 }
 function colorOf(n){
-  let c = n; while (c){ if (c.color) return c.color; c = c.parent ? N(c.parent) : null; }
-  return PALETTE[0];
+  let c = n; while (c){ if (c.color) return themed(c.color); c = c.parent ? N(c.parent) : null; }
+  return themed(PALETTE[0]);
 }
 function isHidden(n){ let p = n.parent ? N(n.parent) : null; while (p){ if (p.collapsed) return true; p = p.parent ? N(p.parent) : null; } return false; }
 const visibleNodes = () => Object.values(state.nodes).filter(n => !isHidden(n));
@@ -406,10 +487,10 @@ function readTheme(){
   const g = v => cs.getPropertyValue(v).trim();
   theme = {ink:g('--ink'), rootText:g('--surface'), grid:g('--grid'), sel:g('--sel'), bg:g('--paper')};
 }
-const EXPORT_THEME = {ink:'#1B2230', rootText:'#FFFFFF', grid:null, sel:null};
 
-function taper(c, p0, p3, w0, w1, color){
-  const mx = (p0.x + p3.x)/2, p1 = {x:mx, y:p0.y}, p2 = {x:mx, y:p3.y};
+function taper(c, p0, p3, w0, w1, color, vertical){
+  const mx = (p0.x + p3.x)/2, my = (p0.y + p3.y)/2;
+  const p1 = vertical ? {x:p0.x, y:my} : {x:mx, y:p0.y}, p2 = vertical ? {x:p3.x, y:my} : {x:mx, y:p3.y};
   const L=[], R=[], S=26;
   for (let i=0;i<=S;i++){
     const t=i/S, u=1-t;
@@ -438,27 +519,48 @@ function anchorIn(g, s){
 }
 function rr(c,x,y,w,h,r){ c.beginPath(); c.roundRect ? c.roundRect(x,y,w,h,r) : c.rect(x,y,w,h); }
 
-function badgePos(n, g){ const s = side(n) || 1, a = anchorOut(g, s); return {x: a.x + s*15, y: a.y}; }
+function elbow(c, p0, p1, w, color){
+  const r = Math.max(0, Math.min(10, Math.abs(p1.y - p0.y), Math.abs(p1.x - p0.x)));
+  c.beginPath(); c.moveTo(p0.x, p0.y); c.lineTo(p0.x, p1.y - r); c.quadraticCurveTo(p0.x, p1.y, p0.x + r, p1.y); c.lineTo(p1.x, p1.y);
+  c.strokeStyle = color; c.lineWidth = w; c.lineCap = 'round'; c.lineJoin = 'round'; c.stroke();
+}
+function badgePos(n, g){
+  const mode = layoutMode();
+  if (mode === 'down') return {x:g.x, y:g.y + g.h/2 + 15};
+  if (mode === 'tree') return {x:g.x + g.w/2 + 17, y:g.y};
+  const s = side(n) || 1, a = anchorOut(g, s); return {x: a.x + s*15, y: a.y};
+}
 function drawScene(c, th, opts){
-  const nodes = visibleNodes();
+  const nodes = visibleNodes(), mode = layoutMode();
+  curPal = th.pal || PALETTE;
   const G = new Map(nodes.map(n => [n.id, geom(n)]));
   // edges
   for (const n of nodes){
     if (!n.parent) continue;
-    const p = N(n.parent), gp = G.get(p.id), gn = G.get(n.id), s = side(n);
+    const p = N(n.parent), gp = G.get(p.id), gn = G.get(n.id);
     const w0 = gp.d===0 ? 10 : gp.d===1 ? 4.5 : 2.6, w1 = gp.d===0 ? 4.5 : 2.6;
-    taper(c, anchorOut(gp, s), anchorIn(gn, s), w0, w1, colorOf(n));
+    if (mode === 'down'){
+      taper(c, {x:gp.x, y:gp.y + gp.h/2 - (gp.d===0 ? 10 : 0)}, {x:gn.x, y:gn.y - gn.h/2 + (gn.d>=2 ? 4 : 1)}, w0, w1, colorOf(n), true);
+    } else if (mode === 'tree'){
+      const sx = gp.x - gp.w/2 + (gp.d===0 ? 24 : gp.d===1 ? 18 : 10);
+      const ey = gn.d >= 2 ? gn.y + gn.h/2 : gn.y;
+      elbow(c, {x:sx, y:gp.y + gp.h/2}, {x:gn.x - gn.w/2 + (gn.d===1 ? 2 : 0), y:ey}, gp.d===0 ? 3.5 : gp.d===1 ? 2.8 : 2.2, colorOf(n));
+    } else {
+      const s = side(n);
+      taper(c, anchorOut(gp, s), anchorIn(gn, s), w0, w1, colorOf(n));
+    }
   }
   // nodes
   for (const n of nodes){
     const g = G.get(n.id), st = g.st;
     c.font = st.font; c.textAlign = 'center'; c.textBaseline = 'middle';
     if (st.kind==='root'){
-      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = th.ink; c.fill();
-      c.fillStyle = th.rootText; c.fillText(label(n), g.x, g.y+1);
+      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = th.root; c.fill();
+      c.fillStyle = textOn(th.root); c.fillText(label(n), g.x, g.y+1);
     } else if (st.kind==='pill'){
-      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = colorOf(n); c.fill();
-      c.fillStyle = '#FFFFFF'; c.fillText(label(n), g.x, g.y+1);
+      const col = colorOf(n);
+      rr(c, g.x-g.w/2, g.y-g.h/2, g.w, g.h, g.h/2); c.fillStyle = col; c.fill();
+      c.fillStyle = textOn(col); c.fillText(label(n), g.x, g.y+1);
     } else {
       c.fillStyle = th.ink; c.fillText(label(n), g.x, g.y);
       c.beginPath(); c.moveTo(g.x-g.w/2, g.y+g.h/2); c.lineTo(g.x+g.w/2, g.y+g.h/2);
@@ -487,16 +589,19 @@ function drawScene(c, th, opts){
 function draw(){
   const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
   if (cv.width !== Math.round(W*dpr) || cv.height !== Math.round(H*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  const bt = boardTheme(false);
   ctx.setTransform(1,0,0,1,0,0); ctx.clearRect(0,0,cv.width,cv.height);
+  if (bt.bg){ ctx.fillStyle = bt.bg; ctx.fillRect(0,0,cv.width,cv.height); }
   // dot grid
   const step = 28*view.k;
   if (step >= 9){
-    ctx.fillStyle = theme.grid; const r = Math.max(1, 1.1*dpr);
+    ctx.fillStyle = bt.grid; const r = Math.max(1, 1.1*dpr);
     const ox = ((view.x % step)+step)%step, oy = ((view.y % step)+step)%step;
     for (let x=ox; x<W; x+=step) for (let y=oy; y<H; y+=step){ ctx.fillRect(x*dpr - r/2, y*dpr - r/2, r, r); }
   }
   ctx.setTransform(dpr*view.k,0,0,dpr*view.k,dpr*view.x,dpr*view.y);
-  drawScene(ctx, theme, {selection:true});
+  drawScene(ctx, bt, {selection:true});
+  if (editing) positionEditor();
   $('zoomPct').textContent = Math.round(view.k*100) + '%';
 }
 let raf = 0; const redraw = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; draw(); }); };
@@ -509,13 +614,52 @@ function mutate(fn){
   undoStack.push(before); if (undoStack.length > 120) undoStack.shift(); redoStack.length = 0;
   afterChange();
 }
-function afterChange(){ autoRelayout = false; persist(); syncUI(); redraw(); }
+function afterChange(){ autoRelayout = false; persist(); syncUI(); redraw(); if (autoArrange || !isH()) arrangeSoon(); }
+
+/* auto-arrange: after every change, glide branches into a tidy layout (no extra undo step) */
+let autoArrange = true;
+try { autoArrange = localStorage.getItem(STORE + '.auto') !== 'off'; } catch(e){}
+function arrangeSoon(){
+  cancelAnimationFrame(anim);
+  const T = layout(), from = {};
+  let moved = false;
+  for (const id in T){ const n = N(id); if (!n) continue; from[id] = {x:n.x, y:n.y}; if (Math.abs(n.x - T[id].x) > 0.5 || Math.abs(n.y - T[id].y) > 0.5) moved = true; }
+  if (!moved) return;
+  const done = () => { for (const id in T){ const n = N(id); if (n){ n.x = T[id].x; n.y = T[id].y; } } persist(); redraw(); const f = editing ? editing.id : sel; if (f && N(f)) ensureVisible(f); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches){ done(); return; }
+  const t0 = performance.now();
+  const step = now => {
+    const t = Math.min(1, (now - t0)/280), e = 1 - Math.pow(1-t, 3);
+    for (const id in T){ const n = N(id); if (!n || !from[id]) continue; n.x = from[id].x + (T[id].x - from[id].x)*e; n.y = from[id].y + (T[id].y - from[id].y)*e; }
+    draw();
+    if (t < 1) anim = requestAnimationFrame(step); else done();
+  };
+  anim = requestAnimationFrame(step);
+}
+function setAutoArrange(on){
+  autoArrange = on;
+  try { localStorage.setItem(STORE + '.auto', on ? 'on' : 'off'); } catch(e){}
+  syncAutoBtn();
+  if (on) arrangeSoon();
+  toast(on ? '자동 정리를 켰어요. 글을 쓰거나 가지를 바꾸면 바로 정리돼요.' : '자동 정리를 껐어요. 가지를 원하는 자리에 둘 수 있어요.');
+}
+function syncAutoBtn(){ const b = $('autoBtn'); if (!b) return; b.setAttribute('aria-pressed', autoArrange); $('autoState').textContent = autoArrange ? '켜짐' : '꺼짐'; }
 function undo(){ if (!undoStack.length) return; redoStack.push(snapshot()); state = JSON.parse(undoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
 function redo(){ if (!redoStack.length) return; undoStack.push(snapshot()); state = JSON.parse(redoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
 
 /* ---------- edits ---------- */
 function newId(){ let id; do { id = 'n' + (++state.seq) + Math.random().toString(36).slice(2,5); } while (state.nodes[id]); return id; }
-function nextL1Color(){ return PALETTE[kids(state.root).length % 8]; }
+function nextL1Color(rootId){ return PALETTE[kids(rootId || state.root).length % 8]; }
+function rootOf(n){ while (n.parent) n = N(n.parent); return n; }
+function addRoot(x, y){
+  let id;
+  mutate(() => {
+    id = newId();
+    state.nodes[id] = {id, parent:null, text:'새 주제', emoji:'', x, y, color:null, ord: state.seq};
+    sel = id;
+  });
+  startEdit(id, true, false);
+}
 
 function addChild(pid){
   if (!pid) return;
@@ -526,16 +670,25 @@ function addChild(pid){
     let s;
     if (d===0){ const ks = kids(pid); const r = ks.filter(k=>side(k)===1).length, l = ks.length - r; s = r <= l ? 1 : -1; }
     else s = side(p) || 1;
+    const mode = layoutMode();
+    if (mode === 'right') s = 1; else if (mode === 'left') s = -1;
     id = newId();
-    const n = {id, parent:pid, text:'새 가지', emoji:'', x:0, y:0, color: d===0 ? nextL1Color() : null, ord: state.seq};
+    const n = {id, parent:pid, text:'새 가지', emoji:'', x:0, y:0, color: d===0 ? nextL1Color(pid) : null, ord: state.seq};
+    const others = kids(pid);
     state.nodes[id] = n;
     const gp = geom(p), g = geom(n);
-    n.x = p.x + s*(gp.w/2 + (d===0 ? 80 : 44) + g.w/2);
-    const sib = kids(pid).filter(k => k.id!==id && side(k)===s);
-    if (sib.length){
-      const low = Math.max(...sib.flatMap(k => subtreeIds(k.id).map(i => N(i).y)));
-      n.y = low + Math.max(g.h + 16, 48);
-    } else n.y = p.y;
+    if (mode === 'down'){
+      n.y = p.y + gp.h/2 + 40; n.x = others.length ? Math.max(...others.map(k => k.x)) + 1 : p.x;
+    } else if (mode === 'tree'){
+      n.x = p.x; n.y = others.length ? Math.max(...others.map(k => k.y)) + 1 : p.y + 1;
+    } else {
+      n.x = p.x + s*(gp.w/2 + (d===0 ? 80 : 44) + g.w/2);
+      const sib = others.filter(k => side(k)===s);
+      if (sib.length){
+        const low = Math.max(...sib.flatMap(k => subtreeIds(k.id).map(i => N(i).y)));
+        n.y = low + Math.max(g.h + 16, 48);
+      } else n.y = p.y;
+    }
     sel = id;
   });
   ensureVisible(id); startEdit(id, true);
@@ -545,12 +698,19 @@ function addSibling(id){
   if (!n.parent) return addChild(id);
   let nid;
   mutate(() => {
-    const s = side(n), g = geom(n), gap = Math.max(g.h + 16, 48);
-    for (const k of kids(n.parent)) if (k.id!==id && side(k)===s && k.y > n.y) moveSubtree(k.id, 0, gap);
+    const mode = layoutMode(), color = depth(n)===1 ? nextL1Color(n.parent) : null;
     nid = newId();
-    const m = {id:nid, parent:n.parent, text:'새 가지', emoji:'', x:n.x, y:n.y + gap, color: depth(n)===1 ? nextL1Color() : null, ord: state.seq};
-    state.nodes[nid] = m;
-    const gm = geom(m); m.x = n.x - s*(g.w/2) + s*(gm.w/2);
+    if (mode === 'down'){
+      state.nodes[nid] = {id:nid, parent:n.parent, text:'새 가지', emoji:'', x:n.x + 0.5, y:n.y, color, ord: state.seq};
+    } else if (mode === 'tree'){
+      state.nodes[nid] = {id:nid, parent:n.parent, text:'새 가지', emoji:'', x:n.x, y:n.y + 0.5, color, ord: state.seq};
+    } else {
+      const s = side(n), g = geom(n), gap = Math.max(g.h + 16, 48);
+      for (const k of kids(n.parent)) if (k.id!==id && side(k)===s && k.y > n.y) moveSubtree(k.id, 0, gap);
+      const m = {id:nid, parent:n.parent, text:'새 가지', emoji:'', x:n.x, y:n.y + gap, color, ord: state.seq};
+      state.nodes[nid] = m;
+      const gm = geom(m); m.x = n.x - s*(g.w/2) + s*(gm.w/2);
+    }
     sel = nid;
   });
   ensureVisible(nid); startEdit(nid, true);
@@ -558,37 +718,145 @@ function addSibling(id){
 function moveSubtree(id, dx, dy){ for (const i of subtreeIds(id)){ const m = N(i); m.x += dx; m.y += dy; } }
 function removeNode(id){
   const n = N(id); if (!n) return;
-  if (!n.parent){ toast('가운데 주제는 지울 수 없어요. 글자를 바꿔 보세요.'); return; }
-  mutate(() => { for (const i of subtreeIds(id)) delete state.nodes[i]; sel = n.parent; });
+  if (!n.parent && tops().length < 2){ toast('마지막 남은 주제는 지울 수 없어요. 글자를 바꿔 보세요.'); return; }
+  mutate(() => {
+    for (const i of subtreeIds(id)) delete state.nodes[i];
+    if (!state.nodes[state.root]) state.root = tops()[0].id;
+    sel = n.parent || state.root;
+  });
 }
 
 /* ---------- auto layout ---------- */
 let anim = null;
-function layout(){
-  const root = N(state.root), T = {}; T[root.id] = {x:root.x, y:root.y};
-  const memo = new Map();
-  const subH = n => {
-    if (memo.has(n.id)) return memo.get(n.id);
-    const own = geom(n).h + 16, ks = n.collapsed ? [] : kids(n.id);
-    const v = Math.max(own, ks.reduce((a,c)=>a+subH(c), 0)); memo.set(n.id, v); return v;
+const LAYOUTS = [
+  {key:'both', name:'양쪽', note:'가운데에서 좌우로'},
+  {key:'right', name:'오른쪽', note:'왼쪽에서 오른쪽으로'},
+  {key:'left', name:'왼쪽', note:'오른쪽에서 왼쪽으로'},
+  {key:'down', name:'아래로', note:'조직도처럼 위에서 아래로'},
+  {key:'tree', name:'목록형', note:'들여쓰기 트리, 긴 목록에 좋아요'}
+];
+function layoutMode(){ return state.layout || 'both'; }
+const isH = () => !['down','tree'].includes(layoutMode());
+const tops = () => Object.values(state.nodes).filter(n => !n.parent).sort((a,b) => a.ord - b.ord);
+// order: optional Map id->rank used when switching shapes, so the visual order carries over
+function layout(order, sideOv){
+  const mode = layoutMode(), T = {};
+  const key = n => order && order.has(n.id) ? order.get(n.id) : (mode === 'down' ? n.x : n.y);
+  const sortK = list => list.slice().sort((a,b) => key(a) - key(b));
+  const shiftHidden = c => {
+    const dx = T[c.id].x - c.x, dy = T[c.id].y - c.y;
+    for (const i of subtreeIds(c.id).slice(1)) T[i] = {x: N(i).x + dx, y: N(i).y + dy};
   };
-  const place = (list, parent, s) => {
-    const pt = T[parent.id], gp = geom(parent), pd = gp.d;
-    const total = list.reduce((a,c)=>a+subH(c),0) + (pd===0 ? (list.length-1)*14 : 0);
-    let y = pt.y - total/2;
-    for (const c of list){
-      const h = subH(c), gc = geom(c);
-      T[c.id] = {x: pt.x + s*(gp.w/2 + (pd===0 ? 80 : 44) + gc.w/2), y: y + h/2};
-      y += h + (pd===0 ? 14 : 0);
-      if (c.collapsed){
-        const dx = T[c.id].x - c.x, dy = T[c.id].y - c.y;
-        for (const i of subtreeIds(c.id).slice(1)) T[i] = {x: N(i).x + dx, y: N(i).y + dy};
-      } else place(kids(c.id).sort((a,b)=>a.y-b.y), c, s);
+  for (const root of tops()){
+    T[root.id] = {x:root.x, y:root.y};
+    if (mode === 'down'){
+      const memo = new Map();
+      const subW = n => {
+        if (memo.has(n.id)) return memo.get(n.id);
+        const own = geom(n).w + 28, ks = n.collapsed ? [] : kids(n.id);
+        const v = Math.max(own, ks.reduce((a,c)=>a+subW(c),0)); memo.set(n.id, v); return v;
+      };
+      const place = parent => {
+        const ks = parent.collapsed ? [] : sortK(kids(parent.id)); if (!ks.length) return;
+        const pt = T[parent.id], gp = geom(parent);
+        let x = pt.x - ks.reduce((a,c)=>a+subW(c),0)/2;
+        const top = pt.y + gp.h/2 + (gp.d===0 ? 64 : 46);
+        for (const c of ks){
+          const w = subW(c), gc = geom(c);
+          T[c.id] = {x: x + w/2, y: top + gc.h/2}; x += w;
+          if (c.collapsed) shiftHidden(c); else place(c);
+        }
+      };
+      place(root);
+    } else if (mode === 'tree'){
+      let y = root.y + geom(root).h/2 + 20;
+      const place = parent => {
+        const pt = T[parent.id], gp = geom(parent);
+        const left = pt.x - gp.w/2 + (gp.d===0 ? 46 : gp.d===1 ? 36 : 26);
+        for (const c of sortK(kids(parent.id))){
+          const gc = geom(c);
+          T[c.id] = {x: left + gc.w/2, y: y + gc.h/2}; y += gc.h + (gc.d===1 ? 14 : 8);
+          if (c.collapsed) shiftHidden(c); else place(c);
+        }
+      };
+      place(root);
+    } else {
+      const memo = new Map();
+      const subH = n => {
+        if (memo.has(n.id)) return memo.get(n.id);
+        const own = geom(n).h + 16, ks = n.collapsed ? [] : kids(n.id);
+        const v = Math.max(own, ks.reduce((a,c)=>a+subH(c), 0)); memo.set(n.id, v); return v;
+      };
+      const place = (list, parent, s) => {
+        const pt = T[parent.id], gp = geom(parent), pd = gp.d;
+        const total = list.reduce((a,c)=>a+subH(c),0) + (pd===0 ? Math.max(0, list.length-1)*14 : 0);
+        let y = pt.y - total/2;
+        for (const c of list){
+          const h = subH(c), gc = geom(c);
+          T[c.id] = {x: pt.x + s*(gp.w/2 + (pd===0 ? 80 : 44) + gc.w/2), y: y + h/2};
+          y += h + (pd===0 ? 14 : 0);
+          if (c.collapsed) shiftHidden(c); else place(sortK(kids(c.id)), c, s);
+        }
+      };
+      const l1 = kids(root.id);
+      if (mode === 'right') place(sortK(l1), root, 1);
+      else if (mode === 'left') place(sortK(l1), root, -1);
+      else for (const s of [1,-1]) place(sortK(l1.filter(c => (sideOv && sideOv.has(c.id) ? sideOv.get(c.id) : side(c)) === s)), root, s);
     }
-  };
-  const l1 = kids(root.id);
-  for (const s of [1,-1]) place(l1.filter(c => side(c)===s).sort((a,b)=>a.y-b.y), root, s);
+  }
+  // keep separate main topics from overlapping: push later ones below earlier ones
+  const placed = [];
+  for (const root of tops()){
+    const ids = subtreeIds(root.id).filter(i => !isHidden(N(i)) && T[i]);
+    const box = () => {
+      let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
+      for (const i of ids){ const g = geom(N(i)), p = T[i]; x0=Math.min(x0,p.x-g.w/2); x1=Math.max(x1,p.x+g.w/2); y0=Math.min(y0,p.y-g.h/2); y1=Math.max(y1,p.y+g.h/2); }
+      return {x0,y0,x1,y1};
+    };
+    let b = box();
+    for (let guard = 0; guard < 50; guard++){
+      const hitBox = placed.find(o => b.x0 < o.x1 + 40 && b.x1 > o.x0 - 40 && b.y0 < o.y1 + 40 && b.y1 > o.y0 - 40);
+      if (!hitBox) break;
+      const dy = hitBox.y1 + 40 - b.y0;
+      for (const i of subtreeIds(root.id)) if (T[i]) T[i] = {x:T[i].x, y:T[i].y + dy};
+      b = box();
+    }
+    placed.push(b);
+  }
   return T;
+}
+// switch branch shape, carrying the current visual order into the new shape
+function setLayoutMode(mode){
+  const old = layoutMode(); if (old === mode) { runLayout(true); return; }
+  const order = new Map(), sideOv = new Map();
+  const oldKey = n => old === 'down' ? n.x : n.y;
+  for (const n of Object.values(state.nodes)){
+    const ks = kids(n.id).slice().sort((a,b) => {
+      if (!n.parent && (old === 'both')){ const sa = side(a), sb = side(b); if (sa !== sb) return sb - sa; }
+      return oldKey(a) - oldKey(b);
+    });
+    ks.forEach((k,i) => order.set(k.id, i));
+    if (!n.parent && mode === 'both'){ const half = Math.ceil(ks.length/2); ks.forEach((k,i) => sideOv.set(k.id, i < half ? 1 : -1)); }
+  }
+  const before = snapshot();
+  state.layout = mode;
+  const T = layout(order, sideOv);
+  undoStack.push(before); redoStack.length = 0;
+  animateTo(T, () => { persist(); syncUI(); fit(); });
+}
+function animateTo(T, onDone){
+  cancelAnimationFrame(anim);
+  const from = {}; for (const id in T){ const n = N(id); if (n) from[id] = {x:n.x, y:n.y}; }
+  const done = () => { for (const id in T){ const n = N(id); if (n){ n.x = T[id].x; n.y = T[id].y; } } redraw(); onDone && onDone(); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches){ done(); return; }
+  const t0 = performance.now();
+  const step = now => {
+    const t = Math.min(1, (now - t0)/340), e = 1 - Math.pow(1-t, 3);
+    for (const id in from){ const n = N(id); if (!n) continue; n.x = from[id].x + (T[id].x - from[id].x)*e; n.y = from[id].y + (T[id].y - from[id].y)*e; }
+    draw();
+    if (t < 1) anim = requestAnimationFrame(step); else done();
+  };
+  anim = requestAnimationFrame(step);
 }
 function runLayout(animate){
   const before = snapshot(), T = layout();
@@ -624,6 +892,7 @@ function zoomAt(f, sx, sy){
   const k = Math.min(3, Math.max(0.15, view.k*f)); const r = k / view.k;
   view.x = sx - (sx - view.x)*r; view.y = sy - (sy - view.y)*r; view.k = k; redraw();
 }
+function zoomTo(k){ zoomAt(k / view.k, cv.clientWidth/2, cv.clientHeight/2); }
 function ensureVisible(id){
   const g = geom(N(id)), W = cv.clientWidth, H = cv.clientHeight;
   const sx = g.x*view.k + view.x, sy = g.y*view.k + view.y, m = 90;
@@ -636,6 +905,15 @@ function hitBadge(wx, wy){
   for (const n of visibleNodes()){
     if (!n.collapsed || !n.parent) continue;
     const b = badgePos(n, geom(n)); if (Math.hypot(wx-b.x, wy-b.y) <= 14) return n.id;
+  }
+  return null;
+}
+function hitInner(wx, wy, exclude){
+  const list = visibleNodes();
+  for (let i=list.length-1;i>=0;i--){
+    const n = list[i]; if (exclude && exclude.has(n.id)) continue;
+    const g = geom(n);
+    if (Math.abs(wx-g.x) <= g.w/2 && Math.abs(wy-g.y) <= Math.max(9, g.h*0.32)) return n.id;
   }
   return null;
 }
@@ -689,8 +967,10 @@ cv.addEventListener('pointermove', e => {
   else {
     for (const [i,x,y] of drag.orig){ N(i).x = x + dx/view.k; N(i).y = y + dy/view.k; }
     const w = toWorld(e.clientX, e.clientY);
-    const t = N(drag.id).parent ? hit(w.x, w.y, drag.excl) : null;
-    dropTarget = (t && t !== N(drag.id).parent) ? t : null;
+    // dropping onto the middle of another branch makes it a child; dropping beside siblings only changes the order
+    const me = N(drag.id), canMove = !!me.parent || tops().length > 1;
+    const t = canMove ? hitInner(w.x, w.y, drag.excl) : null;
+    dropTarget = (t && t !== me.parent) ? t : null;
   }
   redraw();
 });
@@ -705,8 +985,10 @@ function endPointer(e){
     if (d.moved){
       if (dropTarget){
         const n = N(d.id), t = dropTarget; dropTarget = null;
-        n.parent = t;
-        if (depth(n) === 1 && !n.color) n.color = nextL1Color();
+        n.parent = t; n.collapsed = n.collapsed && kids(n.id).length > 0;
+        N(t).collapsed = false;
+        if (depth(n) === 1 && !n.color) n.color = nextL1Color(t);
+        if (N(state.root).parent) state.root = tops()[0].id;
         toast(`'${N(t).text}' 아래로 옮겼어요`);
       }
       undoStack.push(d.before); redoStack.length = 0; afterChange();
@@ -719,6 +1001,11 @@ function endPointer(e){
 }
 cv.addEventListener('pointerup', endPointer);
 cv.addEventListener('pointercancel', e => { if (drag && drag.type==='node' && drag.moved) restoreDrag(); drag = null; endPointer(e); });
+cv.addEventListener('dblclick', e => {
+  const w = toWorld(e.clientX, e.clientY);
+  if (hit(w.x, w.y) || hitBadge(w.x, w.y)) return;
+  addRoot(w.x, w.y);
+});
 cv.addEventListener('wheel', e => {
   e.preventDefault();
   if (e.ctrlKey || e.metaKey) zoomAt(Math.exp(-e.deltaY*0.01), e.clientX, e.clientY);
@@ -730,13 +1017,18 @@ const ed = $('editor'); let editing = null;
 function startEdit(id, isNew, replace){
   const n = N(id); if (!n) return;
   editing = {id, isNew}; sel = id;
-  const g = geom(n), k = view.k;
   ed.value = replace ? '' : n.text; ed.hidden = false;
+  positionEditor();
+  ed.focus(); if (!replace) ed.select(); redraw();
+}
+function positionEditor(){
+  if (!editing) return;
+  const n = N(editing.id); if (!n) return;
+  const g = geom(n), k = view.k;
   ed.style.font = g.st.font.replace(/(\d+(?:\.\d+)?)px/, (m, p) => (p*k) + 'px');
   const w = Math.max(g.w*k + 40, 160), h = g.h*k + 8;
   ed.style.width = w + 'px'; ed.style.height = h + 'px';
   ed.style.left = (g.x*k + view.x - w/2) + 'px'; ed.style.top = (g.y*k + view.y - h/2) + 'px';
-  ed.focus(); if (!replace) ed.select(); redraw();
 }
 function commitEdit(cancel){
   if (!editing) return;
@@ -762,13 +1054,24 @@ window.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
   if (mod && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); return; }
+  // zoom: Ctrl/Cmd + / - / 0, Shift+1 to fit everything
+  if (mod && (e.key === '=' || e.key === '+' || e.key === '-' || e.key === '_' || e.key === '0')){
+    e.preventDefault();
+    if (e.key === '0'){ zoomTo(1); return; }
+    const g = sel && N(sel) ? geom(N(sel)) : null;
+    const cx = g ? g.x*view.k + view.x : cv.clientWidth/2, cy = g ? g.y*view.k + view.y : cv.clientHeight/2;
+    zoomAt(e.key === '-' || e.key === '_' ? 1/1.2 : 1.2, cx, cy); return;
+  }
+  if (e.shiftKey && !mod && (e.key === '!' || e.code === 'Digit1')){ e.preventDefault(); fit(); return; }
   if (!$('startWrap').hidden){ if (e.key === 'Escape' && canResume) closeStart(); return; }
   if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
   if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
   if (e.key === '?' ){ e.preventDefault(); openPop('keysPop', $('menuBtn'), true); return; }
   if (e.key.startsWith('Arrow')){
     e.preventDefault();
-    if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) reorder(e.key === 'ArrowUp' ? -1 : 1);
+    const vert = e.key === 'ArrowUp' || e.key === 'ArrowDown', down = layoutMode() === 'down';
+    if (e.altKey && vert && !down) reorder(e.key === 'ArrowUp' ? -1 : 1);
+    else if (e.altKey && !vert && down) reorder(e.key === 'ArrowLeft' ? -1 : 1);
     else navigate(e.key);
     return;
   }
@@ -790,7 +1093,35 @@ window.addEventListener('keydown', e => {
 /* ---------- keyboard navigation & folding ---------- */
 function navigate(key){
   if (!sel || !N(sel)){ sel = state.root; syncUI(); ensureVisible(sel); return; }
-  const n = N(sel), s = side(n);
+  const n = N(sel), mode = layoutMode();
+  const go = id => { if (id){ sel = id; } syncUI(); ensureVisible(sel); redraw(); };
+  // nearest visible node in a direction along one axis, from a candidate list
+  const nearest = (list, axis, dir) => {
+    let best = null;
+    for (const m of list){
+      if (m.id === n.id) continue;
+      const d = m[axis] - n[axis]; if (dir < 0 ? d >= -1 : d <= 1) continue;
+      const score = Math.abs(d) + Math.abs(m[axis === 'x' ? 'y' : 'x'] - n[axis === 'x' ? 'y' : 'x'])*0.3;
+      if (!best || score < best.s) best = {m, s:score};
+    }
+    return best && best.m.id;
+  };
+  const kidsVis = () => n.collapsed ? [] : kids(n.id);
+  const openOr = pickFn => { if (n.collapsed && kids(n.id).length){ toggleCollapse(n.id, false); return; } go(pickFn()); };
+  if (mode === 'down'){
+    if (key === 'ArrowDown') return openOr(() => { let b=null; for (const k of kidsVis()) if (!b || Math.abs(k.x-n.x) < Math.abs(b.x-n.x)) b=k; return b && b.id; });
+    if (key === 'ArrowUp') return go(n.parent);
+    const dir = key === 'ArrowRight' ? 1 : -1;
+    if (!n.parent) return go(nearest(tops(), 'x', dir));
+    const d = depth(n), vis = visibleNodes();
+    return go(nearest(vis.filter(m => m.parent === n.parent), 'x', dir) || nearest(vis.filter(m => m.parent && depth(m) === d), 'x', dir));
+  }
+  if (mode === 'tree'){
+    if (key === 'ArrowRight') return openOr(() => { const ks = kidsVis().sort((a,b)=>a.y-b.y); return ks[0] && ks[0].id; });
+    if (key === 'ArrowLeft') return go(n.parent);
+    return go(nearest(visibleNodes(), 'y', key === 'ArrowUp' ? -1 : 1));
+  }
+  const s = side(n);
   const nearestKid = (dirSide) => {
     if (n.collapsed) return null;
     const ks = kids(n.id).filter(k => n.parent ? true : side(k) === dirSide);
@@ -805,7 +1136,7 @@ function navigate(key){
       const k = nearestKid(s); if (k) sel = k.id;
     } else sel = n.parent;
   } else {
-    if (!n.parent) return;
+    if (!n.parent) return go(nearest(tops(), 'y', key === 'ArrowUp' ? -1 : 1));
     const up = key === 'ArrowUp', d = depth(n);
     const pick = (filter) => {
       let best = null;
@@ -823,6 +1154,13 @@ function navigate(key){
 }
 function reorder(dir){
   const n = N(sel); if (!n || !n.parent) return;
+  if (!isH()){
+    const axis = layoutMode() === 'down' ? 'x' : 'y';
+    const sib = kids(n.parent).sort((a,b) => a[axis] - b[axis]);
+    const i = sib.findIndex(k => k.id === n.id), o = sib[i + dir]; if (!o) return;
+    mutate(() => { const d = o[axis] - n[axis]; if (axis === 'x'){ moveSubtree(n.id, d, 0); moveSubtree(o.id, -d, 0); } else { moveSubtree(n.id, 0, d); moveSubtree(o.id, 0, -d); } });
+    return;
+  }
   const s = side(n);
   const sib = kids(n.parent).filter(k => side(k) === s).sort((a,b) => a.y - b.y);
   const i = sib.findIndex(k => k.id === n.id), j = i + dir;
@@ -874,7 +1212,8 @@ function syncUI(){
 $('title').addEventListener('change', () => { const v = $('title').value.trim() || '제목 없는 마인드맵'; mutate(() => { state.title = v; }); });
 $('title').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) $('title').blur(); });
 $('undoBtn').onclick = undo; $('redoBtn').onclick = redo;
-$('layoutBtn').onclick = () => { runLayout(true); };
+$('layoutBtn').onclick = e => { renderShapes(); openPop('shapePop', e.currentTarget, true); };
+$('arrangeNowBtn').onclick = () => { closePops(); runLayout(true); };
 $('addChildBtn').onclick = () => addChild(sel);
 $('addSibBtn').onclick = () => addSibling(sel);
 $('editBtn').onclick = () => startEdit(sel, false);
@@ -883,10 +1222,64 @@ $('zoomIn').onclick = () => zoomAt(1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('zoomOut').onclick = () => zoomAt(1/1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('fitBtn').onclick = fit;
 
-function closePops(){ for (const id of ['emojiPop','colorPop','menuPop','fontPop','keysPop']) $(id).hidden = true; }
+function closePops(){ for (const id of ['emojiPop','colorPop','menuPop','fontPop','keysPop','shapePop','themePop']) $(id).hidden = true; }
+
+// branch shapes
+const SHAPE_ICONS = {
+  both:'<rect x="19" y="14" width="14" height="8" rx="4" fill="currentColor"/><path d="M19 18C14 18 13 8 6 8M19 18C14 18 13 28 6 28M33 18c5 0 6-10 13-10M33 18c5 0 6 10 13 10" stroke="currentColor" stroke-width="2"/>',
+  right:'<rect x="3" y="14" width="14" height="8" rx="4" fill="currentColor"/><path d="M17 18c6 0 7-12 14-12h14M17 18h28M17 18c6 0 7 12 14 12h14" stroke="currentColor" stroke-width="2"/>',
+  left:'<rect x="35" y="14" width="14" height="8" rx="4" fill="currentColor"/><path d="M35 18c-6 0-7-12-14-12H7M35 18H7M35 18c-6 0-7 12-14 12H7" stroke="currentColor" stroke-width="2"/>',
+  down:'<rect x="19" y="3" width="14" height="8" rx="4" fill="currentColor"/><path d="M26 11c0 8-16 6-16 18M26 11v18M26 11c0 8 16 6 16 18" stroke="currentColor" stroke-width="2"/>',
+  tree:'<rect x="4" y="3" width="14" height="7" rx="3.5" fill="currentColor"/><path d="M9 10v20M9 16h8M9 23h8M9 30h8" stroke="currentColor" stroke-width="2"/><path d="M22 16h22M22 23h16M22 30h20" stroke="currentColor" stroke-width="2" opacity=".45"/>'
+};
+function renderShapes(){
+  const box = $('shapeList'); box.innerHTML = '';
+  for (const L of LAYOUTS){
+    const b = document.createElement('button'); b.className = 'shapeopt'; b.setAttribute('aria-pressed', layoutMode() === L.key);
+    b.innerHTML = `<svg viewBox="0 0 52 36" aria-hidden="true">${SHAPE_ICONS[L.key]}</svg><strong></strong><span></span>`;
+    b.querySelector('strong').textContent = L.name; b.querySelector('span').textContent = L.note;
+    b.onclick = () => { closePops(); setLayoutMode(L.key); };
+    box.appendChild(b);
+  }
+}
+
+// color themes, ordered so the ones that suit this map's words come first
+function themeOrder(){
+  const text = ((state.title || '') + ' ' + Object.values(state.nodes).map(n => (n.text || '') + ' ' + (n.emoji || '')).join(' ')).toLowerCase();
+  return THEMES.map((t, i) => ({t, i, score: (t.tags || []).reduce((a, k) => a + (text.split(k.toLowerCase()).length - 1), 0)}))
+    .sort((a, b) => (b.score - a.score) || (a.i - b.i));
+}
+function themeCard(t, recommended){
+  const b = document.createElement('button'); b.className = 'themeopt'; b.setAttribute('aria-pressed', themeDef().key === t.key);
+  const isAuto = t.key === 'auto';
+  const bg = isAuto ? 'var(--paper)' : t.bg, root = isAuto ? 'var(--ink)' : t.root, pal = isAuto ? PALETTE : t.pal;
+  const pv = document.createElement('div'); pv.className = 'tprev'; pv.style.background = bg;
+  const r = document.createElement('div'); r.className = 'r'; r.style.background = root; pv.appendChild(r);
+  [[10,44],[24,30],[38,38],[52,26]].forEach(([top, w], i) => { const s = document.createElement('div'); s.className = 'b'; s.style.top = (top - 2) + 'px'; s.style.width = w + 'px'; s.style.background = pal[i]; pv.appendChild(s); });
+  const nm = document.createElement('div'); nm.className = 'tname'; nm.textContent = t.name;
+  if (recommended){ const c = document.createElement('span'); c.className = 'rec'; c.textContent = '추천'; nm.appendChild(c); }
+  b.append(pv, nm);
+  b.onclick = () => { mutate(() => { state.theme = t.key; }); renderThemes(); };
+  return b;
+}
+function renderThemes(){
+  const box = $('themeList'); box.innerHTML = '';
+  const ordered = themeOrder(), rec = ordered.filter(o => o.score > 0).slice(0, 6);
+  $('themeHint').textContent = rec.length ? '이 맵 내용에 어울리는 테마를 앞에 두었어요' : '색 테마 · 다크, 깔끔, 컬러풀';
+  if (rec.length){
+    const g = document.createElement('div'); g.className = 'tgroup'; g.textContent = '추천'; box.appendChild(g);
+    rec.forEach(o => box.appendChild(themeCard(o.t, true)));
+    const g2 = document.createElement('div'); g2.className = 'tgroup'; g2.textContent = '전체'; box.appendChild(g2);
+  }
+  const recKeys = new Set(rec.map(o => o.t.key));
+  ordered.filter(o => !recKeys.has(o.t.key)).sort((a,b) => a.i - b.i).forEach(o => box.appendChild(themeCard(o.t, false)));
+}
+$('themeBtn').onclick = e => { renderThemes(); openPop('themePop', e.currentTarget, true); };
 
 // folding
 $('foldBtn').onclick = () => toggleCollapse(sel);
+$('autoBtn').onclick = () => { closePops(); setAutoArrange(!autoArrange); };
+syncAutoBtn();
 $('expandAllBtn').onclick = () => { closePops(); setAllCollapsed('none'); };
 $('firstOnlyBtn').onclick = () => { closePops(); setAllCollapsed('first'); };
 $('keysBtn').onclick = () => { closePops(); openPop('keysPop', $('menuBtn'), true); };
@@ -922,7 +1315,7 @@ function openPop(pop, anchor, alignRight){
   p.style.left = left + 'px'; p.style.top = top + 'px';
 }
 document.addEventListener('pointerdown', e => {
-  if (e.target.closest('.pop') || e.target.closest('#emojiBtn,#colorBtn,#menuBtn,#fontBtn,#keysBtn') || e.target === cv) return;
+  if (e.target.closest('.pop') || e.target.closest('#emojiBtn,#colorBtn,#menuBtn,#fontBtn,#keysBtn,#themeBtn,#layoutBtn') || e.target === cv) return;
   closePops();
 });
 
@@ -956,7 +1349,7 @@ function renderSwatches(){
   none.onclick = () => { if (!sel) return; const n = N(sel); if (depth(n) <= 1){ toast('첫 단계 가지는 고유한 색이 있어야 해요'); return; } mutate(() => { n.color = null; }); closePops(); };
   box.appendChild(none);
   for (const c of PALETTE){
-    const b = document.createElement('button'); b.className = 'sw'; b.style.background = c;
+    const b = document.createElement('button'); b.className = 'sw'; b.style.background = boardTheme(false).pal[PALETTE.indexOf(c)];
     b.setAttribute('aria-pressed', cur === c); b.setAttribute('aria-label','색 ' + c);
     b.onclick = () => { if (!sel) return; mutate(() => { N(sel).color = c; }); closePops(); };
     box.appendChild(b);
@@ -1032,15 +1425,16 @@ function renderExport(scale, opts){
   const W = Math.ceil(b.w*scale), H = Math.ceil((b.h + titleH)*scale);
   const c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d');
-  if (opts.bg){ x.fillStyle = '#FFFFFF'; x.fillRect(0,0,W,H); }
+  const et = boardTheme(true);
+  if (opts.bg){ x.fillStyle = et.bg; x.fillRect(0,0,W,H); }
   if (opts.title){
     x.setTransform(scale,0,0,scale,0,0);
-    x.font = fontStr(fontDef(), fontDef().w[0], Math.round(28*fontDef().scale)); x.fillStyle = '#1B2230';
+    x.font = fontStr(fontDef(), fontDef().w[0], Math.round(28*fontDef().scale)); x.fillStyle = et.ink;
     x.textAlign = 'left'; x.textBaseline = 'alphabetic'; x.fillText(state.title || '마인드맵', 56, 62);
-    x.fillStyle = '#C9D1DB'; x.fillRect(56, 76, b.w - 112, 1.5);
+    x.globalAlpha = 0.18; x.fillRect(56, 76, b.w - 112, 1.5); x.globalAlpha = 1;
   }
   x.setTransform(scale,0,0,scale,-b.x0*scale, (titleH - b.y0)*scale);
-  const saveSel = sel; sel = null; drawScene(x, EXPORT_THEME, {selection:false}); sel = saveSel;
+  const saveSel = sel; sel = null; drawScene(x, et, {selection:false}); sel = saveSel;
   return c;
 }
 function exportScale(){
