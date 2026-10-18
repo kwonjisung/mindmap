@@ -1398,7 +1398,8 @@ function syncLevels(){
   box.innerHTML = '';
   for (let d = 1; d <= max; d++){
     const b = document.createElement('button'); b.className = 'lvchip'; b.textContent = d === max ? '전체' : String(d);
-    b.title = d === max ? '모든 단계 펼치기' : `${d}단계까지 보기`;
+    const altKey = IS_MAC ? '⌥' : 'Alt+';
+    b.title = d === max ? `모든 단계 펼치기 (${altKey}0)` : `${d}단계까지 보기 (${altKey}${d})`;
     b.setAttribute('aria-pressed', d === cur); b.onclick = () => showLevel(d);
     box.appendChild(b);
   }
