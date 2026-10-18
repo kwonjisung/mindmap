@@ -75,8 +75,6 @@ button{font:inherit;color:inherit}
 .poplabel{font-size:12px;color:var(--muted);margin-bottom:8px;letter-spacing:.02em}
 #menuPop{width:240px;padding:6px}
 #menuPop .btn{width:100%;justify-content:flex-start}
-#confirmRow{padding:8px 8px 4px;font-size:13px;display:grid;gap:8px}
-#confirmRow div{display:flex;gap:6px}
 
 #sheetWrap{position:fixed;inset:0;z-index:30;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
 #sheet{background:var(--surface);border-radius:20px;box-shadow:var(--shadow);width:min(520px,100%);max-height:calc(100% - 16px);overflow:auto;padding:20px;display:grid;gap:16px}
@@ -94,6 +92,23 @@ button{font:inherit;color:inherit}
 .note{font-size:13px;color:var(--muted);line-height:1.55;margin:0}
 .actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
 
+#startWrap{position:fixed;inset:0;z-index:35;background:rgba(10,14,20,.42);display:grid;place-items:center;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:16px}
+#start{background:var(--surface);border-radius:22px;box-shadow:var(--shadow);width:min(780px,100%);max-height:calc(100% - 16px);overflow:auto;padding:24px;display:grid;gap:16px}
+.startHead{display:flex;gap:14px;align-items:center}
+.startHead .mark{width:40px;height:40px;flex:none}
+.startHead h2{font-family:var(--f-display);font-weight:400;font-size:28px;margin:0 0 2px;text-wrap:balance}
+.startMain{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.card{display:grid;gap:4px;text-align:left;border:1px solid var(--line);background:var(--surface);border-radius:16px;padding:14px;cursor:pointer;min-width:0}
+.card:hover{border-color:var(--ink)}
+.card:focus-visible{outline:2px solid var(--sel);outline-offset:2px}
+.card strong{font-size:15px;font-weight:600}
+.card span{font-size:13px;color:var(--muted);line-height:1.45}
+.card.big{background:var(--chip);border-color:transparent;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}
+.card.big .ico{grid-row:span 2;width:40px;height:40px;border-radius:12px;background:var(--ink);color:var(--surface);display:grid;place-items:center;font-size:20px}
+.card.big:hover{border-color:var(--ink)}
+.samples{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.thumb{aspect-ratio:16/10;max-width:100%;background:#FFFFFF;border-radius:10px;border:1px solid var(--line);display:grid;place-items:center;overflow:hidden;margin-bottom:6px;padding:6px}
+.thumb canvas{max-width:100%;max-height:100%}
 #editor{position:fixed;z-index:15;border:2px solid var(--sel);border-radius:8px;background:var(--surface);color:var(--ink);padding:2px 8px;outline:none;text-align:center}
 #toast{position:fixed;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top,0px) + 76px);z-index:40;background:var(--ink);color:var(--surface);padding:10px 16px;border-radius:12px;font-size:14px;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
 #printImg{display:none}
@@ -130,12 +145,12 @@ button{font:inherit;color:inherit}
 </header>
 
 <div id="selbar" class="island" role="toolbar" aria-label="선택한 가지 도구">
-  <div id="hint">가지를 눌러 선택하세요<span class="kb">&nbsp;· 더블클릭 <kbd>편집</kbd> <kbd>Tab</kbd> 가지 <kbd>Enter</kbd> 형제</span></div>
+  <div id="hint">가지를 눌러 선택하세요<span class="kb">&nbsp;· <kbd>Enter</kbd> 편집 <kbd>Tab</kbd> 가지 <kbd>Space</kbd> 형제</span></div>
   <div id="selTools" style="display:flex;gap:2px" hidden>
     <button class="btn" id="addChildBtn" title="하위 가지 추가 (Tab)"><svg viewBox="0 0 24 24"><path d="M4 12c6 0 6-6 12-6"/><circle cx="19" cy="6" r="2.4"/><path d="M19 13v6m-3-3h6"/></svg><span class="lbl">가지</span></button>
-    <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Enter)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
+    <button class="btn" id="addSibBtn" title="같은 단계 가지 추가 (Space)"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="12" height="6" rx="3"/><path d="M10 14v6m-3-3h6"/></svg><span class="lbl">형제</span></button>
     <span class="sep"></span>
-    <button class="btn" id="editBtn" title="글자 고치기 (F2)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
+    <button class="btn" id="editBtn" title="글자 고치기 (Enter)"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg><span class="lbl">편집</span></button>
     <button class="btn" id="emojiBtn" title="이모지"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 14.5c1.8 2 5.2 2 7 0"/><path d="M9 10h.01M15 10h.01" stroke-width="2.6"/></svg><span class="lbl">이모지</span></button>
     <button class="btn" id="colorBtn" title="가지 색"><svg viewBox="0 0 24 24"><path d="M12 3.5c3.5 4 6 7 6 10a6 6 0 0 1-12 0c0-3 2.5-6 6-10z"/></svg><span class="lbl">색</span></button>
     <span class="sep"></span>
@@ -166,8 +181,7 @@ button{font:inherit;color:inherit}
 </div>
 
 <div id="menuPop" class="pop" hidden>
-  <button class="btn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M12 11v6m-3-3h6"/></svg>새 마인드맵</button>
-  <div id="confirmRow" hidden>지금 맵을 지우고 새로 시작할까요? 되돌리기로 복구할 수 있어요.<div><button class="btn primary" id="newYes">새로 시작</button><button class="btn" id="newNo">취소</button></div></div>
+  <button class="btn" id="newBtn"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M12 11v6m-3-3h6"/></svg>새 맵 · 예시 열기</button>
   <button class="btn" id="saveJsonBtn"><svg viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 4v5h7V4M8 20v-6h8v6"/></svg>파일로 보관 (.json)</button>
   <button class="btn" id="openJsonBtn"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v10H3z"/></svg>보관 파일 열기</button>
   <input type="file" id="fileIn" accept=".json,application/json" hidden>
@@ -197,6 +211,21 @@ button{font:inherit;color:inherit}
   </div>
 </div>
 
+<div id="startWrap" hidden>
+  <div id="start" role="dialog" aria-modal="true" aria-labelledby="startTitle">
+    <div class="startHead">
+      <svg class="mark" viewBox="0 0 26 26" aria-hidden="true"><path d="M13 13 C17 13 18 6 23 6" stroke="#E2553F" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C17 13 18 20 23 20" stroke="#2C7BD6" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 7 3 7" stroke="#16956C" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M13 13 C9 13 8 19 3 19" stroke="#C77A0A" stroke-width="2.6" fill="none" stroke-linecap="round"/><circle cx="13" cy="13" r="5" fill="currentColor"/></svg>
+      <div><h2 id="startTitle">무엇으로 시작할까요?</h2><p class="note">빈 페이지에서 바로 그리거나, 예시를 골라 고쳐 쓰세요.</p></div>
+    </div>
+    <div class="startMain">
+      <button class="card big" id="startBlank"><span class="ico">＋</span><strong>빈 페이지</strong><span>가운데 주제 하나로 시작해요</span></button>
+      <button class="card big" id="startResume" hidden><span class="ico">↩</span><strong>이어서 하기</strong><span id="resumeTitle"></span></button>
+    </div>
+    <div class="poplabel">예시로 시작</div>
+    <div class="samples" id="samples"></div>
+  </div>
+</div>
+
 <input id="editor" hidden aria-label="가지 글자">
 <div id="toast" role="status" hidden></div>
 <img id="printImg" alt="">
@@ -221,29 +250,60 @@ const EMOJIS = {
 let state, sel = null, view = {x:0, y:0, k:1};
 const undoStack = [], redoStack = [];
 
-function sample(){
-  const s = {title:'예시 · 새 게임 기획', root:'n0', seq:0, nodes:{}};
-  const add = (id,parent,text,emoji,x,color) => { s.nodes[id] = {id,parent,text,emoji,x,y:0,color:color||null,ord:s.seq++}; };
-  add('n0',null,'새 게임 기획','🎮',0);
-  const br = [
-    ['장르','🧩',1,['레이싱','퍼즐','리듬 액션']],
-    ['캐릭터','🦸',1,['주인공 로봇','라이벌','펫 도우미']],
-    ['스테이지','🗺️',1,['사막','얼음 동굴','하늘 섬']],
-    ['그래픽','🎨',-1,['로우폴리 3D','밝은 색감']],
-    ['조작','🕹️',-1,['키보드','터치 버튼']],
-    ['출시','🚀',-1,['웹 버전 먼저','친구들 테스트']]
-  ];
-  br.forEach(([t,e,side,kids],i) => {
-    const id='b'+i; add(id,'n0',t,e,side*200,PALETTE[i]);
-    kids.forEach((k,j)=> add(id+'_'+j,id,k,'',side*400));
+const SAMPLES = [
+  {title:'새 게임 기획', desc:'장르·캐릭터·스테이지를 나눠 보는 기획 맵', root:['새 게임 기획','🎮'], br:[
+    ['장르','🧩',['레이싱','퍼즐','리듬 액션']],
+    ['캐릭터','🦸',[['주인공 로봇','🤖'],'라이벌','펫 도우미']],
+    ['스테이지','🗺️',['사막','얼음 동굴','하늘 섬']],
+    ['그래픽','🎨',['로우폴리 3D','밝은 색감']],
+    ['조작','🕹️',['키보드','터치 버튼']],
+    ['출시','🚀',[['웹 버전 먼저','🌐'],'친구들 테스트']]]},
+  {title:'주말 가족 여행', desc:'일정·숙소·먹거리·준비물을 한눈에', root:['주말 가족 여행','🧳'], br:[
+    ['일정','📅',['토요일 아침 출발','일요일 저녁 귀가']],
+    ['숙소','🏠',['바다 보이는 펜션','바비큐 가능한 곳']],
+    ['할 일','🎡',[['바닷가 산책','🌊'],'체험 농장']],
+    ['먹거리','🍜',['해물 칼국수','시장 간식']],
+    ['준비물','🎒',['수영복','상비약','충전기']],
+    ['예산','💰',['숙박','식비','기름값']]]},
+  {title:'이번 주 계획', desc:'일·집안일·운동·쉼을 나눠 한 주 정리', root:['이번 주 계획','🗓️'], br:[
+    ['일','💼',['보고서 마감','회의 준비']],
+    ['집안일','🧺',['장보기','빨래','분리수거']],
+    ['운동','🏃',['걷기 세 번','스트레칭']],
+    ['가족','👨‍👩‍👧',['주말 나들이','부모님께 전화']],
+    ['배우기','📖',['영어 단어 30개']],
+    ['쉬기','☕',['영화 한 편','일찍 자기']]]},
+  {title:'책 한 권 정리', desc:'읽은 책의 핵심과 내 생각을 정리', root:['책 제목','📚'], br:[
+    ['핵심 메시지','💡',['한 문장 요약','작가가 묻는 질문']],
+    ['기억나는 장면','✨',['첫 장면','가장 놀란 부분']],
+    ['등장인물','👥',['주인공','조력자']],
+    ['내 생각','💬',['공감한 점','동의하지 않는 점']],
+    ['실천할 것','✅',['이번 주에 해 볼 한 가지']]]},
+  {title:'육하원칙 생각 정리', desc:'누가·언제·어디서·무엇을·어떻게·왜 틀', root:['정리할 주제','🧭'], br:[
+    ['누가','🙋',['관련된 사람']],
+    ['언제','⏰',['시작','마감']],
+    ['어디서','📍',['장소']],
+    ['무엇을','🎯',['해야 할 일']],
+    ['어떻게','🛠️',['방법','필요한 것']],
+    ['왜','❓',['이유','기대 효과']]]}
+];
+function buildSample(def){
+  const s = {title:def.title, root:'n0', seq:0, nodes:{}};
+  const add = (id,parent,text,emoji,x,color) => { s.nodes[id] = {id,parent,text,emoji:emoji||'',x,y:0,color:color||null,ord:s.seq++}; };
+  add('n0',null,def.root[0],def.root[1],0);
+  const half = Math.ceil(def.br.length/2);
+  def.br.forEach(([t,e,ks],i) => {
+    const sd = i < half ? 1 : -1, id = 'b'+i; add(id,'n0',t,e,sd*200,PALETTE[i%8]);
+    ks.forEach((k,j) => { const [kt,ke] = Array.isArray(k) ? k : [k,'']; add(id+'_'+j,id,kt,ke,sd*400); });
   });
-  s.nodes['b1_0'].emoji = '🤖'; s.nodes['b5_0'].emoji = '🌐';
   return s;
 }
+function blankMap(){ return {title:'새 마인드맵', root:'n0', seq:1, nodes:{n0:{id:'n0',parent:null,text:'가운데 주제',emoji:'💡',x:0,y:0,color:null,ord:0}}}; }
+function withState(s, fn){ const keep = state; state = s; try { return fn(); } finally { state = keep; } }
+function arrange(s){ withState(s, () => { const T = layout(); for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; } }); return s; }
 
 function load(){
-  try { const raw = localStorage.getItem(STORE); if (raw){ const s = JSON.parse(raw); if (valid(s)) return {s, fresh:false}; } } catch(e){}
-  return {s: sample(), fresh:true};
+  try { const raw = localStorage.getItem(STORE); if (raw){ const s = JSON.parse(raw); if (valid(s)) return s; } } catch(e){}
+  return null;
 }
 function valid(s){ return s && typeof s === 'object' && s.nodes && s.root && s.nodes[s.root]; }
 function persist(){ try { localStorage.setItem(STORE, JSON.stringify(state)); } catch(e){} }
@@ -380,7 +440,7 @@ function mutate(fn){
   undoStack.push(before); if (undoStack.length > 120) undoStack.shift(); redoStack.length = 0;
   afterChange();
 }
-function afterChange(){ persist(); syncUI(); redraw(); }
+function afterChange(){ autoRelayout = false; persist(); syncUI(); redraw(); }
 function undo(){ if (!undoStack.length) return; redoStack.push(snapshot()); state = JSON.parse(undoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
 function redo(){ if (!redoStack.length) return; undoStack.push(snapshot()); state = JSON.parse(redoStack.pop()); if (sel && !N(sel)) sel = null; afterChange(); }
 
@@ -620,13 +680,14 @@ window.addEventListener('keydown', e => {
   const mod = e.ctrlKey || e.metaKey;
   if (mod && e.key.toLowerCase() === 'z'){ e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
   if (mod && e.key.toLowerCase() === 'y'){ e.preventDefault(); redo(); return; }
+  if (!$('startWrap').hidden){ if (e.key === 'Escape' && canResume) closeStart(); return; }
   if (!$('sheetWrap').hidden){ if (e.key === 'Escape') closeSheet(); return; }
   if (e.key === 'Escape'){ closePops(); sel = null; syncUI(); redraw(); return; }
   if (!sel) return;
   if (e.key === 'Tab'){ e.preventDefault(); addChild(sel); }
-  else if (e.key === 'Enter'){ e.preventDefault(); addSibling(sel); }
+  else if (e.key === ' '){ e.preventDefault(); addSibling(sel); }
   else if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); removeNode(sel); }
-  else if (e.key === 'F2' || e.key === ' '){ e.preventDefault(); startEdit(sel, false); }
+  else if (e.key === 'Enter' || e.key === 'F2'){ e.preventDefault(); startEdit(sel, false); }
 });
 
 /* ---------- UI wiring ---------- */
@@ -648,7 +709,7 @@ $('zoomIn').onclick = () => zoomAt(1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('zoomOut').onclick = () => zoomAt(1/1.2, cv.clientWidth/2, cv.clientHeight/2);
 $('fitBtn').onclick = fit;
 
-function closePops(){ for (const id of ['emojiPop','colorPop','menuPop']) $(id).hidden = true; $('confirmRow').hidden = true; }
+function closePops(){ for (const id of ['emojiPop','colorPop','menuPop']) $(id).hidden = true; }
 function openPop(pop, anchor, alignRight){
   const was = !$(pop).hidden; closePops(); if (was) return;
   const p = $(pop); p.hidden = false;
@@ -703,12 +764,43 @@ $('colorBtn').onclick = e => { renderSwatches(); openPop('colorPop', e.currentTa
 
 // menu
 $('menuBtn').onclick = e => openPop('menuPop', e.currentTarget, true);
-$('newBtn').onclick = () => { $('confirmRow').hidden = false; };
-$('newNo').onclick = () => { $('confirmRow').hidden = true; };
-$('newYes').onclick = () => {
-  mutate(() => { state = {title:'새 마인드맵', root:'n0', seq:1, nodes:{n0:{id:'n0',parent:null,text:'가운데 주제',emoji:'💡',x:0,y:0,color:null,ord:0}}}; sel = 'n0'; });
-  closePops(); fit(); startEdit('n0', true);
-};
+$('newBtn').onclick = () => { closePops(); openStart(); };
+
+/* ---------- start screen ---------- */
+let canResume = false, autoRelayout = false;
+function sampleThumb(def){
+  const s = arrange(buildSample(def));
+  return withState(s, () => { const b = bounds(56); return renderExport(Math.min(0.6, 480/b.w, 300/b.h), {title:false, bg:true}); });
+}
+function renderSamples(){
+  const box = $('samples'); box.innerHTML = '';
+  SAMPLES.forEach(def => {
+    const b = document.createElement('button'); b.className = 'card sample';
+    const fr = document.createElement('div'); fr.className = 'thumb'; fr.appendChild(sampleThumb(def));
+    const t = document.createElement('strong'); t.textContent = def.root[1] + ' ' + def.title;
+    const d = document.createElement('span'); d.textContent = def.desc;
+    b.append(fr, t, d);
+    b.onclick = () => { chooseMap(arrange(buildSample(def))); autoRelayout = true; };
+    box.appendChild(b);
+  });
+}
+function openStart(){
+  if (editing) commitEdit(); closeSheet();
+  $('startResume').hidden = !canResume;
+  $('resumeTitle').textContent = (state.title || '제목 없는 마인드맵') + ' · 가지 ' + Object.keys(state.nodes).length + '개';
+  $('startWrap').hidden = false; renderSamples();
+  (canResume ? $('startResume') : $('startBlank')).focus();
+}
+function closeStart(){ $('startWrap').hidden = true; }
+function chooseMap(s){
+  if (canResume){ undoStack.push(snapshot()); if (undoStack.length > 120) undoStack.shift(); redoStack.length = 0; }
+  const had = canResume;
+  state = s; sel = null; canResume = true; autoRelayout = false;
+  closeStart(); afterChange(); fit();
+  if (had) toast('이전 맵은 되돌리기로 다시 불러올 수 있어요');
+}
+$('startBlank').onclick = () => { chooseMap(blankMap()); sel = 'n0'; syncUI(); startEdit('n0', true); };
+$('startResume').onclick = closeStart;
 $('saveJsonBtn').onclick = async () => { closePops(); await saveFile(fileBase() + '.json', new Blob([JSON.stringify(state, null, 1)], {type:'application/json'})); };
 $('openJsonBtn').onclick = () => { closePops(); $('fileIn').click(); };
 $('fileIn').onchange = () => {
@@ -832,19 +924,20 @@ let toastT;
 function toast(msg){ const t = $('toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
 
 /* ---------- boot ---------- */
-const loaded = load(); state = loaded.s;
+const saved = load(); canResume = !!saved; state = saved || blankMap();
 readTheme();
 if (!window.claude) $('printBtn').hidden = false;
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readTheme(); redraw(); });
 new MutationObserver(() => { readTheme(); redraw(); }).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme','class','style']});
 new ResizeObserver(() => redraw()).observe(cv);
 syncUI();
-if (loaded.fresh){
-  const T = layout(); for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; }
-  setTimeout(() => toast('예시 맵이에요. 오른쪽 위 메뉴에서 새로 시작할 수 있어요.'), 400);
-}
 fit();
-const refont = () => { if (loaded.fresh && !undoStack.length){ const T = layout(); for (const id in T){ N(id).x = T[id].x; N(id).y = T[id].y; } fit(); } redraw(); };
+openStart();
+const refont = () => {
+  if (autoRelayout){ arrange(state); persist(); fit(); }
+  if (!$('startWrap').hidden) renderSamples();
+  redraw();
+};
 if (document.fonts){ document.fonts.ready.then(refont); document.fonts.addEventListener && document.fonts.addEventListener('loadingdone', redraw); }
 })();
 </script>
